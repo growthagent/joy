@@ -5,7 +5,8 @@ name: Test latest Joy release on latest nightly Roc
 # READMEs (here and in the published joy-todomvc starter) and in that
 # release's notes. Red means we adapt to Roc or report a bug.
 #
-# Speed only, because dev and size must not hold back a recommendation.
+# Speed gates the recommendation, on every system and in every browser; dev
+# and size run beside it and must not hold a recommendation back.
 # Publishing does not trigger this. The release workflow already tested that
 # bundle as a draft.
 
@@ -76,6 +77,19 @@ jobs:
       opts: '["speed"]'
       ref: ${{ needs.resolve.outputs.joy }}
       bundle-url: ${{ needs.resolve.outputs.bundle }}
+      e2e: all
+
+  # Informational: not in update-recommendation's needs.
+  test-opts:
+    needs: resolve
+    uses: ./.github/workflows/suite.yml
+    with:
+      roc: '["${{ needs.resolve.outputs.nightly }}"]'
+      label: Joy ${{ needs.resolve.outputs.joy }} on ${{ needs.resolve.outputs.nightly }}
+      opts: '["dev", "size"]'
+      ref: ${{ needs.resolve.outputs.joy }}
+      bundle-url: ${{ needs.resolve.outputs.bundle }}
+      e2e: all
 
   # Green on every leg: recommend this nightly in the READMEs (the checkout,
   # the TodoMVC starter in-repo and as published) and in the tested release's
@@ -97,10 +111,10 @@ jobs:
         run: |
           set -euo pipefail
 
-          # Both files name a nightly for people who install roc themselves:
-          # the root README for anyone building the checkout, the TodoMVC
-          # starter's for everyone who clones it as a template.
-          files="README.md examples/todomvc/README.md"
+          # These files name a nightly for people who install roc themselves:
+          # the root README for anyone building the checkout, the starter
+          # templates' for everyone who clones one of them.
+          files="README.md examples/todomvc/README.md examples/fullstack/README.md"
 
           for file in $files; do
             # Find the currently recommended nightly in this README

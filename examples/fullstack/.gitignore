@@ -1,0 +1,9 @@
+# Build artifacts (runtime.js is copied out of the platform bundle by build.roc)
+client/www/app.wasm
+client/www/runtime.js
+todos.db
+todos.db-shm
+todos.db-wal
+todos.db-journal
+.direnv/
+.zig-cache/

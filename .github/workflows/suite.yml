@@ -31,9 +31,12 @@ on:
         type: string
         default: '["speed"]'
       os:
-        description: JSON array of runner labels, crossed with `roc` and `opts`.
+        description: >
+          JSON array of runner labels, crossed with `roc` and `opts`. Windows
+          takes the downloaded-nightly route only (Nix does not run there), so
+          a `pinned` compiler gets no Windows leg however this is set.
         type: string
-        default: '["ubuntu-24.04", "macos-15"]'
+        default: '["ubuntu-24.04", "macos-15", "windows-2025"]'
       extras:
         description: >
           Also run the small-buffers leg, which is not an opt x os cell.
@@ -41,10 +44,11 @@ on:
         default: false
       e2e:
         description: >
-          How much of the matrix also drives the examples in a real Chromium
-          after the node harnesses: `none`, `linux` (the ubuntu legs only;
-          Chromium's behaviour does not vary by host, so one system is enough
-          for a pull request), or `all` (every leg, for a release).
+          How much of the matrix also drives the examples in real browsers
+          (Chromium, Firefox and WebKit) after the node harnesses: `none`,
+          `linux` (the ubuntu legs only, the cheap engine check), or `all`
+          (every leg; WebKit's macOS build is the Safari stand-in, so this is
+          the default for pull requests and releases alike).
         type: string
         default: none
       ref:
@@ -70,10 +74,16 @@ jobs:
   # Every app built per compiler x opt x OS, then the node harnesses, then
   # (if asked) the browser E2E suite. The wasm is identical across OSes but
   # the toolchain producing it is not, and that is where the bugs have been
-  # (macOS arg handling broke while Linux passed).
+  # (macOS arg handling broke while Linux passed). Every step runs in bash,
+  # on Windows too (the runner's Git Bash), and hands the scripts to roc
+  # rather than running them through their shebang, which a Windows checkout
+  # has no executable bit or shebang support for.
   harness:
     name: ${{ inputs.label }} (${{ matrix.roc }}, ${{ matrix.opt }}, ${{ matrix.os }})
     runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
     strategy:
       # One red leg must never hide another's result.
       fail-fast: false
@@ -81,6 +91,10 @@ jobs:
         roc: ${{ fromJSON(inputs.roc) }}
         opt: ${{ fromJSON(inputs.opts) }}
         os: ${{ fromJSON(inputs.os) }}
+        # The pinned compiler comes from the flake, and Nix has no Windows.
+        exclude:
+          - roc: pinned
+            os: windows-2025
     steps:
       # The code under test.
       - uses: actions/checkout@v4
@@ -105,13 +119,14 @@ jobs:
           path: .bundle
 
       # Background process, survives until the job ends. 8788 because e2e.roc
-      # uses 8787.
+      # uses 8787. node rather than python: every leg has node, and a Windows
+      # runner's python is not reliably `python3`.
       - name: Serve the drafted bundle and point every app at it
         if: inputs.bundle-artifact != ''
         run: |
           set -euo pipefail
           file=$(cd .bundle && ls *.tar.zst)
-          nohup python3 -m http.server 8788 --bind 127.0.0.1 --directory .bundle > .bundle-server.log 2>&1 &
+          nohup node .ci/.github/scripts/serve.mjs .bundle 8788 > .bundle-server.log 2>&1 &
           for _ in $(seq 50); do
             curl -sfI "http://127.0.0.1:8788/$file" > /dev/null && break
             sleep 0.2
@@ -127,13 +142,17 @@ jobs:
           playwright: ${{ inputs.e2e == 'all' || (inputs.e2e == 'linux' && startsWith(matrix.os, 'ubuntu')) }}
 
       - name: Build and test
-        run: ${{ steps.setup.outputs.prefix }} ./tests.roc -- --opt=${{ matrix.opt }}
+        run: ${{ steps.setup.outputs.prefix }} roc ./tests.roc -- --opt=${{ matrix.opt }}
 
       # What only a real browser can prove: event dispatch, <dialog>,
-      # History, fetch, timers, real input.
-      - name: Drive the examples in a real browser
+      # History, fetch, timers, real input. Every engine Playwright bundles:
+      # form controls and event order are where they differ (see
+      # tests/e2e/form_test.roc), and WebKit also differs by host, the WPE
+      # port on Linux against the Cocoa port on macOS, the closest thing to
+      # Safari that Playwright can drive.
+      - name: Drive the examples in Chromium, Firefox and WebKit
         if: inputs.e2e == 'all' || (inputs.e2e == 'linux' && startsWith(matrix.os, 'ubuntu'))
-        run: ${{ steps.setup.outputs.prefix }} ./e2e.roc -- --opt=${{ matrix.opt }}
+        run: ${{ steps.setup.outputs.prefix }} roc ./e2e.roc -- --opt=${{ matrix.opt }} --browser=all
 
       # examples/todomvc doubles as the standalone starter template, so its
       # own scripts must work, not just its app: its suite runs build.roc,
@@ -142,7 +161,17 @@ jobs:
       # from the setup action on nightly ones.
       - name: Drive the TodoMVC template's own suite
         if: inputs.e2e == 'all' || (inputs.e2e == 'linux' && startsWith(matrix.os, 'ubuntu'))
-        run: ${{ steps.setup.outputs.prefix }} sh -c 'cd examples/todomvc && ./tests.roc'
+        run: ${{ steps.setup.outputs.prefix }} sh -c 'cd examples/todomvc && roc ./tests.roc'
+
+      # examples/fullstack proves the hydration story end to end: its e2e
+      # builds the client against this checkout's platform (or the bundle,
+      # when one is under test), starts the basic-webserver server against a
+      # scratch database, and drives the page in Chromium: SSR visible
+      # before the wasm, the same nodes live after boot, and the save round
+      # trip through SQLite.
+      - name: Drive the fullstack template's e2e
+        if: inputs.e2e == 'all' || (inputs.e2e == 'linux' && startsWith(matrix.os, 'ubuntu'))
+        run: ${{ steps.setup.outputs.prefix }} sh -c 'cd examples/fullstack && roc ./e2e.roc'
 
   # SMALL_BUFFERS shrinks the host's outbound buffers so every render takes
   # the growth path. One leg: it only changes the Rust host, so other opt/OS
@@ -173,4 +202,4 @@ jobs:
           github-token: ${{ github.token }}
 
       - name: Build and test with tiny buffers (${{ matrix.roc }})
-        run: ${{ steps.setup.outputs.prefix }} env SMALL_BUFFERS=1 ./tests.roc -- --opt=speed
+        run: ${{ steps.setup.outputs.prefix }} env SMALL_BUFFERS=1 roc ./tests.roc -- --opt=speed

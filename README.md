@@ -18,7 +18,9 @@ Joy is fun to play with, but it's in early development, not production-ready. He
 
 You can already build single-page applications in it but the functionality is limited. Have a look at the [examples](https://github.com/niclas-ahden/joy/tree/main/examples) to get a grasp on what's currently supported. See [Joy TodoMVC](https://www.github.com/niclas-ahden/joy-todomvc) for a complete front-end example.
 
-A full-stack example will follow! In the meantime you can use [`roc-lang/basic-webserver`](https://www.github.com/roc-lang/basic-webserver) and [`joy-html`](https://www.github.com/niclas-ahden/joy-html) to serve Joy HTML from the back-end.
+As an app grows, split it into pages: each page is a module with its own `Model`, `Msg`, `init`, `update` and `view`, and the app wraps them with `Html.map`, `Effect.map` and `Sub.map`. The [pages example](https://github.com/niclas-ahden/joy/tree/main/examples/pages) gives every page its own URL and holds only the page on screen, the shape of a server-rendered app, and the [spa_pages example](https://github.com/niclas-ahden/joy/tree/main/examples/spa_pages) switches pages in place and keeps every page's state.
+
+Joy also does hydration: serve a page rendered with [`joy-html`](https://www.github.com/niclas-ahden/joy-html) and mount with `hydrate: true`, and the client's first render claims the server-rendered DOM (attaching event handlers) instead of rebuilding it. See the [fullstack example](https://github.com/niclas-ahden/joy/tree/main/examples/fullstack) for the whole story: a server-rendered TodoMVC the client hydrates and persists.
 
 Have fun and expect breaking changes!
 
@@ -105,7 +107,9 @@ If you don't want to use Nix then please install:
 * `rustc` (v1.94 + `wasm32-unknown-unknown`)
 * `node` (v22)
 * `watchexec`
-* `playwright` with a chromium, for the browser E2E suite (`npm install -g playwright && playwright install chromium`)
+* `playwright` with its browsers, for the browser E2E suite (`npm install -g playwright && playwright install chromium firefox webkit`)
+
+That route is also the Windows one (Nix does not run there). The scripts in the repo root are Roc programs: on Linux and macOS their shebang runs them (`./tests.roc -- --opt=speed`), on Windows hand them to roc (`roc ./tests.roc -- --opt=speed`), which works everywhere.
 
 ### Running an example
 
@@ -126,9 +130,10 @@ Start modifying the example to get a feel for it. Refresh the browser to see you
 ```sh
 $ ./tests.roc -- --opt=speed # Roc unit tests + the fake-DOM harnesses in tests/
 $ ./e2e.roc -- --opt=speed   # tests/e2e/ in a real headless Chromium
+$ ./e2e.roc -- --opt=speed --browser=all   # the same in Chromium, Firefox and WebKit
 ```
 
-The harnesses in `tests/` mount the built apps on a fake DOM and cover the app and runtime logic. The browser suite in `tests/e2e/` is built on [roc-spec](https://github.com/niclas-ahden/roc-spec) and [roc-playwright](https://github.com/niclas-ahden/roc-playwright) and covers what only a real browser can prove: real event dispatch and bubbling, `<dialog>` semantics, the History API, WebCrypto, fetch, real timers, and real keyboard and mouse input.
+The harnesses in `tests/` mount the built apps on a fake DOM and cover the app and runtime logic. They find elements the way the browser suite does, by role and accessible name, label or test id (`byRole`, `byLabel`, `byTestId` in `tests/fakedom.mjs`), and they can put a work budget on a step: `meter` in `tests/harness.mjs` counts the patch ops the differ emitted and the DOM mutations made to apply them, so a harness asserts not only that the page looks right after a click but that the click cost one text write and no rebuild. The browser suite in `tests/e2e/` is built on [roc-spec](https://github.com/niclas-ahden/roc-spec) and [roc-playwright](https://github.com/niclas-ahden/roc-playwright) and covers what only a real browser can prove: real event dispatch and bubbling, `<dialog>` semantics, the History API, WebCrypto, fetch, real timers, and real keyboard and mouse input.
 
 Both suites take the optimization level to test as their argument, and it is required here, so `./tests.roc -- --opt=dev` and `./e2e.roc -- --opt=dev` run the same suites against dev builds. Each level lands in its own `build/<opt>/` tree.
 
