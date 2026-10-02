@@ -1,6 +1,6 @@
 # Joy fullstack example
 
-A small full-stack TodoMVC built on [Joy](https://github.com/niclas-ahden/joy), all in [Roc](https://www.roc-lang.org): a wasm client, a server on [basic-webserver](https://github.com/roc-lang/basic-webserver) with a SQLite database, and one shared view that the server renders to HTML and the client hydrates. It is a complete app with all of the features you'll need to get started, so clone it and start modifying it!
+A small full-stack TodoMVC built on [Joy](https://github.com/niclas-ahden/joy), all in [Roc](https://www.roc-lang.org): a wasm client, a server on [basic-webserver](https://github.com/niclas-ahden/basic-webserver) with a SQLite database, and one shared view that the server renders to HTML and the client hydrates. It is a complete app with all of the features you'll need to get started, so clone it and start modifying it!
 
 ## Run it
 

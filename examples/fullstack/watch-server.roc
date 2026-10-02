@@ -4,7 +4,7 @@
 # server keeps its port and its SQLite pool across edits. Run it in one
 # terminal and ./watch-client.roc in another (or run both with ./dev.roc).
 app [main!] {
-	pf: platform "https://github.com/niclas-ahden/basic-cli/releases/download/0.24.0/2mx1EsQx1HEG7HdbW2CwUpexvmJZW4nSCpjbur5GXyRe.tar.zst",
+	pf: platform "https://github.com/niclas-ahden/basic-cli/releases/download/0.27.0/HZanbveSUDoJF8LypR663eH7PpaKEKG36eErEQzmV1Qs.tar.zst",
 }
 
 import pf.Path

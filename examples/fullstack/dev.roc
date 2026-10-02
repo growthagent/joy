@@ -6,7 +6,7 @@
 # Prefer separate terminals? ./watch-client.roc and ./watch-server.roc are
 # the same two halves.
 app [main!] {
-	pf: platform "https://github.com/niclas-ahden/basic-cli/releases/download/0.24.0/2mx1EsQx1HEG7HdbW2CwUpexvmJZW4nSCpjbur5GXyRe.tar.zst",
+	pf: platform "https://github.com/niclas-ahden/basic-cli/releases/download/0.27.0/HZanbveSUDoJF8LypR663eH7PpaKEKG36eErEQzmV1Qs.tar.zst",
 }
 
 import pf.Cmd
@@ -15,10 +15,13 @@ import Util exposing [run!]
 main! = |_args| {
 	run!("roc", ["./build.roc"])?
 
-	# Leashed, so the watcher dies with this script
-	_ = Cmd.new_str("roc")
+	# Leashed, so the watcher dies with this script. The handle is held until
+	# the server stops, because releasing it kills the child.
+	watcher = Cmd.new_str("roc")
 		.args_str(["build", "--target=wasm32", "--watch", "--output=client/www/app.wasm", "client/main.roc"])
-		.spawn_leashed!()?
+		.spawn_leashed!() ? |err| WatcherSpawnFailed(err)
 
-	run!("roc", ["--watch", "server/main.roc"])
+	served = run!("roc", ["--watch", "server/main.roc"])
+	watcher.close!() ?? {}
+	served
 }

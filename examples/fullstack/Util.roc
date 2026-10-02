@@ -7,7 +7,7 @@ Util :: [].{
 
 	## Run a command with inherited stdio, exiting with the child's code when it
 	## fails.
-	run! : Str, List(Str) => Try({}, [Exit(I32), ..])
+	run! : Str, List(Str) => Try({}, [Exit(I32)])
 	run! = |program, args| {
 		match Cmd.new_str(program).args_str(args).exec_exit_code!() {
 			Ok(0) => Ok({})
@@ -17,7 +17,7 @@ Util :: [].{
 	}
 
 	## Report a message on stderr and exit non-zero.
-	fail! : Str => Try(ok, [Exit(I32), ..])
+	fail! : Str => Try(ok, [Exit(I32)])
 	fail! = |message| {
 		Stderr.line!("error: ${message}") ?? {}
 		Err(Exit(1))

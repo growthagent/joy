@@ -21,8 +21,8 @@
 # ./todos.db) and `PORT` the port (default 8000). The database file and
 # schema are created on first start.
 app [Context, program] {
-	pf: platform "https://github.com/roc-lang/basic-webserver/releases/download/0.16.0/42jC1JT3auhHSmv2Ah8mW5F2MXiAakq1UQQ4NQceQjXw.tar.zst",
-	http: "https://github.com/roc-lang/http/releases/download/1.0.0/6ZUwqYhCS8PU9Mo6MF7oV82ET2o7KYb57CLKDq4cq4sS.tar.zst",
+	pf: platform "https://github.com/niclas-ahden/basic-webserver/releases/download/0.17.0/4rKQRYBACBiwF7fpUzbHXJxhcg73t3wtMXLZMPt9ENwf.tar.zst",
+	http: "https://github.com/roc-lang/http/releases/download/2.0.0/6ZUwqYhCS8PU9Mo6MF7oV82ET2o7KYb57CLKDq4cq4sS.tar.zst",
 	html: "https://github.com/niclas-ahden/joy-html/releases/download/0.16.0/56NBT6VkQ5xm87Wjzcv9mRuNT4RACiAmuAmPbXwc8cuk.tar.zst",
 	shared: "../shared/main.roc",
 }
@@ -50,7 +50,7 @@ Context : { db : Sqlite.Db, test_routes : Bool }
 
 program = { init!, respond!, shutdown! }
 
-init! : () => Try({ config : Server.Config, context : Context }, [Exit(I64), InvalidPort(Str), CouldNotOpenDb(_), CouldNotEnsureSchema(_), ..])
+init! : () => Try({ config : Server.Config, context : Context }, [Exit(I64), InvalidPort(Str), CouldNotOpenDb(_), CouldNotEnsureSchema(_)])
 init! = || {
 	db_path =
 		match Env.var!("DB_PATH") {
@@ -90,7 +90,7 @@ init! = || {
 
 # An error a route handler lets escape is logged by the platform with request
 # context and turned into a bounded 500.
-respond! : Server.Request, Context => Try(Server.Outcome, [ServerErr(Str), ..])
+respond! : Server.Request, Context => Try(Server.Outcome, [ServerErr(Str)])
 respond! = |req, context|
 	match handle!(req, context) {
 		Ok(response) => Ok(Server.respond(response))
@@ -385,5 +385,5 @@ reset_todos! = |db| {
 }
 
 
-shutdown! : Server.ShutdownReason, Context => Try({}, [Exit(I64), ..])
+shutdown! : Server.ShutdownReason, Context => Try({}, [Exit(I64)])
 shutdown! = |_reason, _context| Ok({})

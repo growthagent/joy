@@ -17,7 +17,7 @@ app [Model, Msg, init, update, render, subscriptions] {
 import Clock
 import Counter
 import Notes
-import html.Html exposing [button, div, main, nav, text]
+import html.Html exposing [a, div, main, nav, text]
 import html.Attribute exposing [class_list, href, id]
 import pf.Effect
 import pf.Sub
@@ -121,7 +121,7 @@ render = |model| {
 # app is at, and the browser loads the page from scratch.
 page_link : Str, Str, Model -> Html(Msg)
 page_link = |label, path, model|
-	button(
+	a(
 		[href(path), class_list([("current", path == page_name(model))])],
 		[text(label)],
 	)

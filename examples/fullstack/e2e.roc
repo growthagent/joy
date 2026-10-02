@@ -13,9 +13,9 @@
 # Set `JOY_E2E_PORT` to change the first worker's port (default 8917; worker N
 # listens on JOY_E2E_PORT + N).
 app [main!] {
-	pf: platform "https://github.com/niclas-ahden/basic-cli/releases/download/0.24.0/2mx1EsQx1HEG7HdbW2CwUpexvmJZW4nSCpjbur5GXyRe.tar.zst",
-	spec: "https://github.com/niclas-ahden/roc-spec/releases/download/0.3.0/2v2CV8CLXRJmQRvfoHtPngAUGgE8jL6DDgXbugZhFVf5.tar.zst",
-	http: "https://github.com/roc-lang/http/releases/download/1.0.0/6ZUwqYhCS8PU9Mo6MF7oV82ET2o7KYb57CLKDq4cq4sS.tar.zst",
+	pf: platform "https://github.com/niclas-ahden/basic-cli/releases/download/0.27.0/HZanbveSUDoJF8LypR663eH7PpaKEKG36eErEQzmV1Qs.tar.zst",
+	spec: "https://github.com/niclas-ahden/roc-spec/releases/download/0.6.0/9ThTkhd7zrviwQpM3LvGd7pvzGhr4ZXNmWJV7pTJc9AJ.tar.zst",
+	http: "https://github.com/roc-lang/http/releases/download/2.0.0/6ZUwqYhCS8PU9Mo6MF7oV82ET2o7KYb57CLKDq4cq4sS.tar.zst",
 }
 
 import http.Request
@@ -50,7 +50,10 @@ main! = |_args| {
 	# One server per worker, each against a scratch database recreated per
 	# run so the tests start from nothing and ./todos.db never sees test
 	# data. Spawned leashed, so they die with this script, pass or fail.
-	TestEnvironment.start!(
+	#
+	# A child is terminated when its last reference is released, so the
+	# handles are kept until the run is over and closed below.
+	servers = TestEnvironment.start!(
 		{ sleep!: Sleep.millis! },
 		{
 			count: workers,
@@ -67,9 +70,12 @@ main! = |_args| {
 				Cmd.new(OsStr.utf8("roc"))
 					.args_str(["--opt=speed", file])
 					.envs_str(envs)
+					.stdout(Capture)
+					.stderr(Capture)
 					.spawn_leashed!(),
-			poll!: Cmd.Child.poll!,
-			kill_wait!: Cmd.Child.kill_wait!,
+			try_wait!: Cmd.Child.try_wait!,
+			kill!: Cmd.Child.kill!,
+			wait!: Cmd.Child.wait!,
 			list_dir!: |dir| Path.utf8(dir).list!().map_ok(|entries| entries.map(Path.display)),
 			print!: Stdout.line!,
 			utc_now!: Utc.now!,
@@ -87,6 +93,10 @@ main! = |_args| {
 			fail_fast: Bool.False,
 		},
 	) ? |e| CouldNotRunTheTests(Str.inspect(e))
+
+	for server in servers {
+		_ = Cmd.Child.close!(server)
+	}
 
 	passed = results.count_if(|r| r.passed)
 	total = results.len()
@@ -115,7 +125,7 @@ spawn_server! = |port| {
 		.env_str("PORT", port.to_str())
 		.env_str("TEST_ROUTES", "1")
 		.spawn_leashed!()
-		.map_ok(|_child| {})
+		.map_err(|e| ServerSpawnFailed(e))
 }
 
 # Any response at all means the server is up.
