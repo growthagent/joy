@@ -8,7 +8,7 @@
 ## client-only (they speak to Joy's platform), and the SQL is server-only.
 ## This module is pure data and pure views, so both apps can compile it.
 import Todo
-import html.Html exposing [Html, a, button, div, footer, h1, header, input, label, li, p, section, span, strong, text, ul]
+import html.Html exposing [a, button, div, footer, h1, header, input, label, li, p, section, span, strong, text, ul]
 import html.Attribute exposing [autofocus, checked, class, class_list, for_, href, id, on, on_check, on_click, on_input, on_key, placeholder, type, value]
 
 App := [].{

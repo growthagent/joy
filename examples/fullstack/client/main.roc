@@ -18,10 +18,10 @@ app [Model, Msg, init, update, render, subscriptions] {
 	shared: "../shared/main.roc",
 }
 
-import html.Html exposing [Html]
+import html.Html
 import pf.Console
 import pf.DOM
-import pf.Effect exposing [Effect]
+import pf.Effect
 import pf.Http
 import shared.App
 import shared.Todo

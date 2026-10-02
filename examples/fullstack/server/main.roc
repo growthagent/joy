@@ -28,7 +28,7 @@ app [Context, program] {
 }
 
 import html.Attribute exposing [attribute, content, href, id, lang, name, rel, src]
-import html.Html exposing [Html, body, div, head, html, link, meta, script, template, text, title]
+import html.Html exposing [body, div, head, html, link, meta, script, template, text, title]
 import http.Response
 import pf.Env
 import pf.Path
