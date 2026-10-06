@@ -12,7 +12,7 @@
 # for garbage, so the server needs no test hooks and every other request
 # (assets, the API) reaches it as usual. Run via ./e2e.roc, which starts a
 # server per worker against its own scratch database and points
-# JOY_E2E_URL here.
+# E2E_URL here.
 app [main!] {
 	pf: platform "https://github.com/niclas-ahden/basic-cli/releases/download/0.28.0/AP9SGT1yrhCKcFxKcoA5tBkNCM6ibBjBxcQGMTb6krev.tar.zst",
 	playwright: "https://github.com/niclas-ahden/roc-playwright/releases/download/0.10.0/ELCrvV4MsjnA4phYGXW3oLW2fH9y1imCxPkxhVnpW9jG.tar.zst",
@@ -31,7 +31,7 @@ import playwright.Playwright exposing [assert!]
 import spec.Assert
 
 main! = |_args| {
-	base = Env.var_str!("JOY_E2E_URL") ?? "http://127.0.0.1:8917"
+	base = Env.var_str!("E2E_URL") ?? "http://127.0.0.1:8917"
 
 	post_json!(base, "/todos", { title: "Stored before the page broke" })?
 

@@ -7,9 +7,9 @@
 # and their warning) is tested in Joy's own suite, in tests/check_hydrate.mjs.
 #
 # Run via ./e2e.roc, which builds the client, starts the server against a
-# scratch database, and points JOY_E2E_URL here. The test seeds its own todos
+# scratch database, and points E2E_URL here. The test seeds its own todos
 # through the API, so it assumes nothing about the database beyond that it
-# answers, but it does write to it: point JOY_E2E_URL at a server whose data
+# answers, but it does write to it: point E2E_URL at a server whose data
 # you care about and you will find test todos in it.
 app [main!] {
 	pf: platform "https://github.com/niclas-ahden/basic-cli/releases/download/0.28.0/AP9SGT1yrhCKcFxKcoA5tBkNCM6ibBjBxcQGMTb6krev.tar.zst",
@@ -29,7 +29,7 @@ import playwright.Playwright exposing [assert!]
 import spec.Assert
 
 main! = |_args| {
-	base = Env.var_str!("JOY_E2E_URL") ?? "http://127.0.0.1:8917"
+	base = Env.var_str!("E2E_URL") ?? "http://127.0.0.1:8917"
 
 	# Seed through the API so the page has a todo list to server-render.
 	seed!(base, "Toggle me")?

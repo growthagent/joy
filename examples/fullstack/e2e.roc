@@ -10,8 +10,8 @@
 # todo list. Run from the example directory, inside the nix devShell (it
 # provides the playwright driver and the browsers).
 #
-# Set `JOY_E2E_PORT` to change the first worker's port (default 8917; worker N
-# listens on JOY_E2E_PORT + N).
+# Set `E2E_PORT` to change the first worker's port (default 8917). Worker N
+# listens on E2E_PORT + N.
 app [main!] {
 	pf: platform "https://github.com/niclas-ahden/basic-cli/releases/download/0.28.0/AP9SGT1yrhCKcFxKcoA5tBkNCM6ibBjBxcQGMTb6krev.tar.zst",
 	spec: "https://github.com/niclas-ahden/roc-spec/releases/download/0.6.0/9ThTkhd7zrviwQpM3LvGd7pvzGhr4ZXNmWJV7pTJc9AJ.tar.zst",
@@ -45,7 +45,7 @@ main! = |_args| {
 
 	run!("roc", ["./build.roc"])?
 
-	base_port = U64.from_str(Env.var_str!("JOY_E2E_PORT") ?? "8917") ? |_| InvalidE2ePort
+	base_port = U64.from_str(Env.var_str!("E2E_PORT") ?? "8917") ? |_| InvalidE2ePort
 
 	# One server per worker, each against a scratch database recreated per
 	# run so the tests start from nothing and ./todos.db never sees test
@@ -84,7 +84,7 @@ main! = |_args| {
 		"e2e",
 		{
 			max_workers: workers,
-			worker_envs: |index| [("JOY_E2E_URL", url(base_port + index))],
+			worker_envs: |index| [("E2E_URL", url(base_port + index))],
 			# A test must not see what the previous one on its worker left
 			# behind, so the todos are wiped before every test.
 			before_each!: |index| reset!(base_port + index),
