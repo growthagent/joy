@@ -154,14 +154,14 @@ jobs:
         if: inputs.e2e == 'all' || (inputs.e2e == 'linux' && startsWith(matrix.os, 'ubuntu'))
         run: ${{ steps.setup.outputs.prefix }} roc ./e2e.roc -- --opt=${{ matrix.opt }} --browser=all
 
-      # examples/todomvc doubles as the standalone starter template, so its
+      # examples/spa-todomvc doubles as the standalone starter template, so its
       # own scripts must work, not just its app: its suite runs build.roc,
       # the per-worker caddy servers, every browser test, and a smoke pass
       # over watch.roc. Caddy comes from the devShell on pinned legs and
       # from the setup action on nightly ones.
       - name: Drive the TodoMVC template's own suite
         if: inputs.e2e == 'all' || (inputs.e2e == 'linux' && startsWith(matrix.os, 'ubuntu'))
-        run: ${{ steps.setup.outputs.prefix }} sh -c 'cd examples/todomvc && roc ./tests.roc'
+        run: ${{ steps.setup.outputs.prefix }} sh -c 'cd examples/spa-todomvc && roc ./tests.roc'
 
       # examples/todomvc-fullstack proves the hydration story end to end: its e2e
       # builds the client against this checkout's platform (or the bundle,

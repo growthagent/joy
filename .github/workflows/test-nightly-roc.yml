@@ -152,7 +152,7 @@ jobs:
 
       # Disabled while Joy is released from growthagent/joy for testing.
       # Uncomment to push to the starter repo again.
-#       # The published starter is a copy of examples/todomvc with no nightly
+#       # The published starter is a copy of examples/spa-todomvc with no nightly
 #       # CI of its own (people clone it as a template and should not inherit
 #       # our maintenance jobs), so its nightly moves from here. Only when it
 #       # pins the bundle this run tested: a starter that lags the latest
