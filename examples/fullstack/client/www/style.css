@@ -1,0 +1,184 @@
+/* One stylesheet for every page, the server's own pages (404, 500)
+   included, so the whole site has one look and one font: the system's own
+   interface font, which needs no download and so never flashes. */
+
+:root {
+  --ink: #1f2328;
+  --muted: #59636e;
+  --line: #d1d9e0;
+  --paper: #ffffff;
+  --shade: #f6f8fa;
+  --accent: #0b5cad;
+  --accent-ink: #ffffff;
+  --danger: #b42318;
+  --ok: #1a7f37;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--ink);
+  background: var(--paper);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+a {
+  color: var(--accent);
+}
+
+/* Header */
+
+.top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1.5rem;
+  padding: 0.75rem 1.5rem;
+  border-bottom: 1px solid var(--line);
+  background: var(--shade);
+}
+
+.brand {
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.links {
+  display: flex;
+  gap: 1rem;
+  flex: 1;
+}
+
+.links a[aria-current="page"] {
+  color: var(--ink);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* Pages */
+
+.page {
+  max-width: 44rem;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+h1 {
+  margin: 0 0 1rem;
+  font-size: 1.75rem;
+}
+
+.status,
+.hint,
+.byline {
+  color: var(--muted);
+}
+
+.error {
+  color: var(--danger);
+}
+
+/* An empty notice takes no room. The view renders it anyway, so every
+   render has the same structure for hydration to claim. */
+.status:empty,
+.error:empty {
+  display: none;
+}
+
+.books {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.book {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.75rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.book a {
+  font-weight: 600;
+}
+
+.author {
+  color: var(--muted);
+  flex: 1;
+}
+
+.borrower {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.badge {
+  font-size: 0.85rem;
+  color: var(--ok);
+}
+
+.badge.on-loan {
+  color: var(--muted);
+}
+
+/* Forms and buttons */
+
+.search,
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+}
+
+.form {
+  max-width: 24rem;
+}
+
+.form button {
+  margin-top: 0.75rem;
+  align-self: flex-start;
+}
+
+input {
+  font: inherit;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+
+button,
+.button {
+  font: inherit;
+  display: inline-block;
+  padding: 0.4rem 0.9rem;
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.give-back {
+  background: var(--paper);
+  color: var(--accent);
+}
+
+.actions {
+  margin: 1rem 0;
+}
