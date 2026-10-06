@@ -131,6 +131,7 @@ Start modifying the example to get a feel for it. Refresh the browser to see you
 $ ./tests.roc -- --opt=speed # Roc unit tests + the fake-DOM harnesses in tests/
 $ ./e2e.roc -- --opt=speed   # tests/e2e/ in a real headless Chromium
 $ ./e2e.roc -- --opt=speed --browser=all   # the same in Chromium, Firefox and WebKit
+$ ./examples.roc             # each directory example's own suite (examples/*/tests.roc)
 ```
 
 The harnesses in `tests/` mount the built apps on a fake DOM and cover the app and runtime logic. They find elements the way the browser suite does, by role and accessible name, label or test id (`byRole`, `byLabel`, `byTestId` in `tests/fakedom.mjs`), and they can put a work budget on a step: `meter` in `tests/harness.mjs` counts the patch ops the differ emitted and the DOM mutations made to apply them, so a harness asserts not only that the page looks right after a click but that the click cost one text write and no rebuild. The browser suite in `tests/e2e/` is built on [roc-spec](https://github.com/niclas-ahden/roc-spec) and [roc-playwright](https://github.com/niclas-ahden/roc-playwright) and covers what only a real browser can prove: real event dispatch and bubbling, `<dialog>` semantics, the History API, WebCrypto, fetch, real timers, and real keyboard and mouse input.

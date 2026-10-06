@@ -154,24 +154,17 @@ jobs:
         if: inputs.e2e == 'all' || (inputs.e2e == 'linux' && startsWith(matrix.os, 'ubuntu'))
         run: ${{ steps.setup.outputs.prefix }} roc ./e2e.roc -- --opt=${{ matrix.opt }} --browser=all
 
-      # examples/spa-todomvc doubles as the standalone starter template, so its
-      # own scripts must work, not just its app: its suite runs build.roc,
-      # the per-worker caddy servers, every browser test, and a smoke pass
-      # over watch.roc. Caddy comes from the devShell on pinned legs and
+      # Every directory example with a tests.roc doubles as a standalone
+      # template, so its own scripts must work, not just its app.
+      # examples.roc finds them all: spa-todomvc runs its per-worker caddy
+      # servers and a smoke pass over watch.roc, the fullstack ones build
+      # the client against this checkout's platform (or the bundle, when one
+      # is under test) and drive it against a basic-webserver server and a
+      # scratch database. Caddy comes from the devShell on pinned legs and
       # from the setup action on nightly ones.
-      - name: Drive the TodoMVC template's own suite
+      - name: Drive each example's own suite
         if: inputs.e2e == 'all' || (inputs.e2e == 'linux' && startsWith(matrix.os, 'ubuntu'))
-        run: ${{ steps.setup.outputs.prefix }} sh -c 'cd examples/spa-todomvc && roc ./tests.roc'
-
-      # examples/todomvc-fullstack proves the hydration story end to end: its e2e
-      # builds the client against this checkout's platform (or the bundle,
-      # when one is under test), starts the basic-webserver server against a
-      # scratch database, and drives the page in Chromium: SSR visible
-      # before the wasm, the same nodes live after boot, and the save round
-      # trip through SQLite.
-      - name: Drive the TodoMVC fullstack template's e2e
-        if: inputs.e2e == 'all' || (inputs.e2e == 'linux' && startsWith(matrix.os, 'ubuntu'))
-        run: ${{ steps.setup.outputs.prefix }} sh -c 'cd examples/todomvc-fullstack && roc ./e2e.roc'
+        run: ${{ steps.setup.outputs.prefix }} roc ./examples.roc
 
   # SMALL_BUFFERS shrinks the host's outbound buffers so every render takes
   # the growth path. One leg: it only changes the Rust host, so other opt/OS
