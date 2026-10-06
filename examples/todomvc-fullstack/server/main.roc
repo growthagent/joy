@@ -386,7 +386,7 @@ text_response = |status, text_body|
 # --- Test support ---
 #
 # Everything below only answers when the server was started with
-# TEST_ROUTES=1, which only the e2e runner sets (see e2e.roc). Reset empties
+# TEST_ROUTES=1, which only the e2e runner sets (see tests.roc). Reset empties
 # the todo list, so each test starts from nothing even when several share a
 # worker's server. Failures are not simulated here: the browser tests
 # intercept the client's requests themselves (see e2e/save_failure_test.roc).

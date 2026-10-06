@@ -6,7 +6,7 @@
 # reload. The finer grain of the claim walk itself (text splitting, repairs,
 # and their warning) is tested in Joy's own suite, in tests/check_hydrate.mjs.
 #
-# Run via ./e2e.roc, which builds the client, starts the server against a
+# Run via ./tests.roc, which builds the client, starts the server against a
 # scratch database, and points E2E_URL here. The test seeds its own todos
 # through the API, so it assumes nothing about the database beyond that it
 # answers, but it does write to it: point E2E_URL at a server whose data

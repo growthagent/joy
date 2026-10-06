@@ -5,7 +5,7 @@
 #
 # The save is held in the browser by roc-playwright's `with_routes!`, so
 # the test looks at the page mid-flight without racing the server. Run via
-# ./e2e.roc, which starts a server per worker against its own scratch
+# ./tests.roc, which starts a server per worker against its own scratch
 # database and points E2E_URL here.
 app [main!] {
 	pf: platform "https://github.com/niclas-ahden/basic-cli/releases/download/0.28.0/AP9SGT1yrhCKcFxKcoA5tBkNCM6ibBjBxcQGMTb6krev.tar.zst",

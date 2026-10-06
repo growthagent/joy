@@ -43,7 +43,7 @@
         devShells =
           let
             testTools = [
-              pkgs.playwright-test # drives the browser during ./e2e.roc
+              pkgs.playwright-test # drives the browser during ./tests.roc
             ];
             playwrightHook = ''
               export PLAYWRIGHT_BROWSERS_PATH=${pkgs.playwright-driver.browsers}
@@ -56,7 +56,7 @@
               shellHook = playwrightHook;
             };
 
-            # Everything ./e2e.roc needs except roc itself, for runs
+            # Everything ./tests.roc needs except roc itself, for runs
             # against another compiler, like the nightly workflow. Prebuilt
             # in the public Nix cache, so no compiler builds here.
             tests = pkgs.mkShell {

@@ -42,7 +42,7 @@ First load: SQLite to server to HTML, then the client claims that HTML and boots
 ## Test it
 
 ```sh
-$ ./e2e.roc
+$ ./tests.roc
 ```
 
 Builds the client and runs the browser tests in `e2e/`, each a [roc-playwright](https://github.com/niclas-ahden/roc-playwright) app driving a real Chromium against its own server and scratch database, so `./todos.db` is never touched. This needs [`playwright`](https://playwright.dev) with a chromium installed (`nix develop` covers it). To add a test, drop a file ending in `_test.roc` into `e2e/`, and the existing ones show the shape: they cover hydration and editing, and then the ways things go wrong. The failure tests intercept the client's requests in the browser with roc-playwright's `with_routes!`, so a save that the server refuses, a connection that drops, a wasm that never arrives, or flags the client cannot read are all staged without any test hooks in the server.
@@ -55,7 +55,7 @@ Builds the client and runs the browser tests in `e2e/`, each a [roc-playwright](
 * `client/www/app.js`: the little loader that reads the flags and hydrates the wasm app over `#app`
 * `client/www/style.css`: the stylesheet. The whole directory is served under `/assets/`, so an image dropped next to it is at `/assets/its-name.png` with no server change. `build.roc` puts `app.wasm` and Joy's `runtime.js` in here too (both gitignored), so the page loads them from the same place.
 * `server/main.roc`: the routes, the server-rendered page, the asset routes, and the SQLite queries
-* `e2e.roc`, `e2e/*_test.roc`: the parallel test runner (roc-spec) and the browser tests (roc-playwright)
+* `tests.roc`, `e2e/*_test.roc`: the parallel test runner (roc-spec) and the browser tests (roc-playwright)
 * `dev.roc`, `build.roc`, `watch-client.roc`, `watch-server.roc`: the scripts, all plain Roc
 
 ## Things to try

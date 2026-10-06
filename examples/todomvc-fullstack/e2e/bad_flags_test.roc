@@ -10,7 +10,7 @@
 # The broken page is staged in the browser: roc-playwright's `with_routes!`
 # answers the document request with the server's real page, flags swapped
 # for garbage, so the server needs no test hooks and every other request
-# (assets, the API) reaches it as usual. Run via ./e2e.roc, which starts a
+# (assets, the API) reaches it as usual. Run via ./tests.roc, which starts a
 # server per worker against its own scratch database and points
 # E2E_URL here.
 app [main!] {

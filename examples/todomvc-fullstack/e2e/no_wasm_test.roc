@@ -6,7 +6,7 @@
 # for app.wasm before it leaves the browser, so the app never boots and the
 # page is whatever the server sent.
 #
-# Run via ./e2e.roc, which starts a server per worker against its own
+# Run via ./tests.roc, which starts a server per worker against its own
 # scratch database and points E2E_URL here.
 app [main!] {
 	pf: platform "https://github.com/niclas-ahden/basic-cli/releases/download/0.28.0/AP9SGT1yrhCKcFxKcoA5tBkNCM6ibBjBxcQGMTb6krev.tar.zst",

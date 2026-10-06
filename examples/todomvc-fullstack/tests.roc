@@ -1,7 +1,7 @@
 #!/usr/bin/env roc
 # Run:
 #
-#   ./e2e.roc
+#   ./tests.roc
 #
 # To build the client and run every browser test in e2e/ (a real Chromium
 # per test, via roc-playwright) in parallel. Each worker gets its own

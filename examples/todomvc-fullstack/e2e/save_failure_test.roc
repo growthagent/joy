@@ -13,7 +13,7 @@
 # The failures are staged in the browser: roc-playwright's `with_routes!`
 # answers the client's requests before they leave the page (`Fulfill` with
 # a response of our choosing, `Abort` for a dropped connection), so the
-# server needs no test hooks and never sees them. Run via ./e2e.roc, which
+# server needs no test hooks and never sees them. Run via ./tests.roc, which
 # starts a server per worker against its own scratch database and points
 # E2E_URL here.
 app [main!] {

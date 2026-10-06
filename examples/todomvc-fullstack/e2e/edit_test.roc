@@ -3,7 +3,7 @@
 # without a second click to focus the field. Enter commits through the server
 # round trip and Escape puts the old title back.
 #
-# Run via ./e2e.roc, which builds the client, starts a server against a
+# Run via ./tests.roc, which builds the client, starts a server against a
 # scratch database, and points E2E_URL here.
 app [main!] {
 	pf: platform "https://github.com/niclas-ahden/basic-cli/releases/download/0.28.0/AP9SGT1yrhCKcFxKcoA5tBkNCM6ibBjBxcQGMTb6krev.tar.zst",
