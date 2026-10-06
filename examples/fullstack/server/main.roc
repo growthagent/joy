@@ -17,9 +17,14 @@
 #      the client replaces its model with that answer: the database is the
 #      source of truth, and the UI shows a change only once it is stored.
 #
+# The platform also answers two health checks itself, for a container
+# runtime or a load balancer: /health/live (200 while the server runs) and
+# /health/ready (200, then 503 once a graceful stop begins).
+#
 # Run it from this directory. `DB_PATH` picks the database file (default
-# ./todos.db) and `PORT` the port (default 8000). The database file and
-# schema are created on first start.
+# ./todos.db), `HOST` the address to listen on (default 127.0.0.1, set
+# 0.0.0.0 in a container) and `PORT` the port (default 8000). The database
+# file and schema are created on first start.
 app [Context, program] {
 	pf: platform "https://github.com/niclas-ahden/basic-webserver/releases/download/0.18.0/DuwGgLMnPKEVKXR5KuwtZRAtgap8TSp4GTnFf8ANHtXB.tar.zst",
 	http: "https://github.com/roc-lang/http/releases/download/2.0.0/6ZUwqYhCS8PU9Mo6MF7oV82ET2o7KYb57CLKDq4cq4sS.tar.zst",
@@ -46,17 +51,21 @@ import shared.Todo
 # test runner sets: it enables the /reset route (see handle!) so every e2e
 # test can start from an empty list. In production it is off and the route
 # does not exist.
-Context : { db : Sqlite.Db, test_routes : Bool }
+#
+# `readiness` is what /health/ready answers, held here because the gate
+# closes once nothing refers to it any more.
+Context : { db : Sqlite.Db, test_routes : Bool, readiness : Server.Readiness }
 
 program = { init!, respond!, shutdown! }
 
-init! : () => Try({ config : Server.Config, context : Context }, [Exit(I64), InvalidPort(Str), CouldNotOpenDb(_), CouldNotEnsureSchema(_)])
+init! : () => Try({ config : Server.Config, context : Context }, [Exit(I64), InvalidPort(Str), CouldNotOpenDb(_), CouldNotEnsureSchema(_), CouldNotCreateReadiness(_)])
 init! = || {
 	db_path =
 		match Env.var!("DB_PATH") {
 			Ok(path) => Path.from_os_str(path)
 			Err(_) => Path.utf8("./todos.db")
 		}
+	host = Env.var_str!("HOST") ?? "127.0.0.1"
 	port =
 		match Env.var_str!("PORT") {
 			Ok(raw) => U16.from_str(raw) ? |_| InvalidPort(raw)
@@ -75,17 +84,21 @@ init! = || {
 	# build.roc), so they need no routes of their own.
 	www = Server.file_root({ id: "www", path: Path.utf8("client/www") })
 
+	# Ready from the start: everything above is done before the platform
+	# starts listening. A graceful stop turns it to NotReady by itself.
+	readiness = Server.Readiness.create!(Ready) ? |err| CouldNotCreateReadiness(err)
+
 	config =
 		Server.default_config
-			.with_listen({ host: "127.0.0.1", port })
+			.with_listen({ host, port })
 			.with_file_roots([www])
 			.with_native_routes({
 				files: [Server.static_mount({ at: "/assets", files: www })],
-				liveness: [],
-				readiness: [],
+				liveness: [Server.liveness_route("/health/live")],
+				readiness: [Server.readiness_route({ at: "/health/ready", readiness })],
 			})
 
-	Ok({ config, context: { db, test_routes } })
+	Ok({ config, context: { db, test_routes, readiness } })
 }
 
 # An error a route handler lets escape is logged by the platform with request

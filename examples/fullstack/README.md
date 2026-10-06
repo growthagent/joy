@@ -14,7 +14,7 @@ $ cd joy-fullstack
 $ ./dev.roc
 ```
 
-Your app is now running at [`http://localhost:8000`](http://localhost:8000) (set `PORT` to change that). The client's platform (Joy) and packages arrive by URL on the first build, so there is nothing else to install or compile: no Rust, no npm, no bundler. Joy's wasm host and basic-webserver's native host both ship prebuilt inside their bundles.
+Your app is now running at [`http://localhost:8000`](http://localhost:8000) (set `PORT` to change that, and `HOST` to listen on another address than 127.0.0.1, such as 0.0.0.0 in a container). The client's platform (Joy) and packages arrive by URL on the first build, so there is nothing else to install or compile: no Rust, no npm, no bundler. Joy's wasm host and basic-webserver's native host both ship prebuilt inside their bundles.
 
 `./dev.roc` is the whole dev loop: it builds the client, rebuilds it on every save, and runs the server with hot reload (edit `server/main.roc` and the new code is swapped into the running process without dropping the port). Prefer two terminals? `./watch-client.roc` and `./watch-server.roc` are the same two halves, and the one-off equivalent is:
 
@@ -23,7 +23,7 @@ $ ./build.roc            # build the client wasm into client/www/
 $ roc server/main.roc    # then run the server
 ```
 
-The database lands in `./todos.db` (set `DB_PATH` to change that) and the schema is created on first start.
+The database lands in `./todos.db` (set `DB_PATH` to change that) and the schema is created on first start. For a container runtime or a load balancer, the server also answers `/health/live` (200 while it runs) and `/health/ready` (200, then 503 once a graceful stop begins), straight from the platform without entering Roc.
 
 Roc is a moving target, so which version you use matters. We test the latest Joy release against the newest nightly every morning and move the name above forward whenever it passes. Each [Joy release](https://github.com/niclas-ahden/joy/releases) also names the nightly it shipped against, under "Roc compiler version".
 

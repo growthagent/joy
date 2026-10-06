@@ -19,6 +19,7 @@ app [main!] {
 }
 
 import http.Request
+import http.Response
 import pf.Cmd
 import pf.Env
 import pf.Http
@@ -128,14 +129,19 @@ spawn_server! = |port| {
 		.map_err(|e| ServerSpawnFailed(e))
 }
 
-# Any response at all means the server is up.
+# The server is up once its readiness check says so, the same signal a
+# container runtime or a load balancer waits for.
 answers! = |port|
-	Http.send!(Request.from_method(GET).with_uri("${url(port)}/")).is_ok()
+	match Http.send!(Request.from_method(GET).with_uri("${url(port)}/health/ready")) {
+		Ok(response) => Response.status(response) == 200
+		Err(_) => Bool.False
+	}
 
 # A test-only route (see the test support section of server/main.roc).
 reset! = |port| {
-	_ = Http.send!(Request.from_method(POST).with_uri("${url(port)}/reset"))?
-	Ok({})
+	response = Http.send!(Request.from_method(POST).with_uri("${url(port)}/reset"))?
+	status = Response.status(response)
+	if status == 200 Ok({}) else Err(ResetFailed(status))
 }
 
 probe_playwright! : Str => Bool
