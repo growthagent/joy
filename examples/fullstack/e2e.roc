@@ -48,9 +48,20 @@ main! = |_args| {
 
 	base_port = U64.from_str(Env.var_str!("E2E_PORT") ?? "8917") ? |_| InvalidE2ePort
 
-	# One server per worker, each against a scratch database recreated per
-	# run so the tests start from nothing and ./todos.db never sees test
-	# data. Spawned leashed, so they die with this script, pass or fail.
+	# The scratch databases live in a fresh temporary directory, removed
+	# again after the run, so the tests start from nothing and nothing
+	# assumes a Unix /tmp.
+	db_dir = Env.create_temp_dir_with_prefix!("joy-fullstack-e2e-") ? |e| CouldNotCreateTempDir(Str.inspect(e))
+	outcome = run_suite!(db_dir, base_port)
+	_ = Path.delete_all!(db_dir) ?? {}
+	outcome
+}
+
+# Start one server per worker, run every test against them, and report.
+run_suite! = |db_dir, base_port| {
+	# One server per worker, each against its own database in db_dir, so
+	# ./todos.db never sees test data. Spawned leashed, so they die with
+	# this script, pass or fail.
 	#
 	# A child is terminated when its last reference is released, so the
 	# handles are kept until the run is over and closed below.
@@ -58,7 +69,7 @@ main! = |_args| {
 		{ sleep!: Sleep.millis! },
 		{
 			count: workers,
-			spawn!: |index| spawn_server!(base_port + index.to_u64()),
+			spawn!: |index| spawn_server!(db_dir, base_port + index.to_u64()),
 			ready!: |index| answers!(base_port + index.to_u64()),
 			max_attempts: 150,
 			delay_ms: 100,
@@ -114,12 +125,8 @@ main! = |_args| {
 url : U64 -> Str
 url = |port| "http://127.0.0.1:${port.to_str()}"
 
-spawn_server! = |port| {
-	db = "/tmp/joy-fullstack-e2e-${port.to_str()}.db"
-	_ = Path.utf8(db).delete!() ?? {}
-	_ = Path.utf8("${db}-wal").delete!() ?? {}
-	_ = Path.utf8("${db}-shm").delete!() ?? {}
-
+spawn_server! = |db_dir, port| {
+	db = Path.display(Path.join(db_dir, "todos-${port.to_str()}.db"))
 	Cmd.new_str("roc")
 		.args_str(["server/main.roc"])
 		.env_str("DB_PATH", db)
