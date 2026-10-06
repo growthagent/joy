@@ -53,8 +53,8 @@ init = |flags|
 	}
 
 # One request at a time: a mutation puts the model in the `busy` state and
-# nothing but the server's reply (or a purely local message) gets through
-# until that reply lands. The view disables the controls while busy, and
+# nothing but the server's reply or the filter (which never sends a request)
+# gets through until that reply lands. The view disables the controls while busy, and
 # this guard catches whatever the CSS cannot (a focused input's keyboard
 # events, a queued click).
 update : Model, Msg -> (Model, List(Effect(Msg)))
@@ -70,6 +70,15 @@ update = |model, msg|
 		}
 
 		ServerSaved(result) => apply_reply(model, result)
+
+		# The filter is purely client-side state. It also lives in the URL,
+		# so the page can be refreshed, bookmarked, or stepped back through
+		# without losing it. It lands whatever the state too: the Back button
+		# cannot be disabled while busy, and a dropped URL change would leave
+		# the list disagreeing with the address bar.
+		UserClickedFilter(filter) => ({ ..model, filter: filter }, [DOM.push_url(App.filter_path(filter))])
+
+		BrowserChangedUrl(url) => ({ ..model, filter: App.filter_from_path(url) }, [])
 
 		other =>
 			if model.busy {
@@ -104,13 +113,6 @@ update_idle = |model, msg|
 		UserClickedDestroy(todo_id) => (saving(model), [delete_todo(todo_id)])
 
 		UserToggledAll(now) => (saving(model), [post_json("/toggle-all", Json.to_str({ done: now }))])
-
-		# The filter is purely client-side state; it also lives in the URL,
-		# so the page can be refreshed, bookmarked, or stepped back through
-		# without losing it.
-		UserClickedFilter(filter) => ({ ..model, filter: filter }, [DOM.push_url(App.filter_path(filter))])
-
-		BrowserChangedUrl(url) => ({ ..model, filter: App.filter_from_path(url) }, [])
 
 		UserClickedClearCompleted => (saving(model), [post_json("/clear-completed", "{}")])
 
@@ -150,7 +152,8 @@ update_idle = |model, msg|
 
 		UserCancelledEdit => ({ ..model, editing: NotEditing }, [])
 
-		# The replies are handled before the busy guard; they cannot get here.
+		# The replies and the filter are handled before the busy guard, so they
+		# cannot get here.
 		_ => (model, [])
 	}
 
