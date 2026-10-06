@@ -6,7 +6,7 @@
 # Prefer separate terminals? ./watch-client.roc and ./watch-server.roc are
 # the same two halves.
 app [main!] {
-	pf: platform "https://github.com/niclas-ahden/basic-cli/releases/download/0.27.0/HZanbveSUDoJF8LypR663eH7PpaKEKG36eErEQzmV1Qs.tar.zst",
+	pf: platform "https://github.com/niclas-ahden/basic-cli/releases/download/0.28.0/AP9SGT1yrhCKcFxKcoA5tBkNCM6ibBjBxcQGMTb6krev.tar.zst",
 }
 
 import pf.Cmd

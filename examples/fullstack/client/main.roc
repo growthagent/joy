@@ -14,7 +14,7 @@
 # does: booting from the flags, reacting to messages, and talking to the API.
 app [Model, Msg, init, update, render, subscriptions] {
 	pf: platform "../../../platform/main.roc",
-	html: "https://github.com/niclas-ahden/joy-html/releases/download/0.16.0/56NBT6VkQ5xm87Wjzcv9mRuNT4RACiAmuAmPbXwc8cuk.tar.zst",
+	html: "https://github.com/niclas-ahden/joy-html/releases/download/0.17.0/AcmwFzyfbsf5RALWNdX6cXw1cuuDXt96YfcysNqgFqoG.tar.zst",
 	shared: "../shared/main.roc",
 }
 
