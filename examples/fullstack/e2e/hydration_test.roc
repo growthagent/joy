@@ -65,7 +65,7 @@ main! = |_args| {
 	assert!(page.find(row(1, "")).has_class("completed")) ? |e| ToggleShouldComplete(Str.inspect(e))
 	assert!(page.find(".todoapp").not_has_class("busy")) ? |e| SpinnerShouldStopAfterSave(Str.inspect(e))
 
-	# Adding goes through the same round trip; the input clears on the
+	# Adding goes through the same round trip, and the input clears on the
 	# server's confirmation.
 	page.find(".new-todo").fill!("From the browser test")?
 	page.key_press!(".new-todo", Enter, [])?

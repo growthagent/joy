@@ -152,7 +152,7 @@ handle! = |req, ctx| {
 				_ => Ok(text_response(405, "Method not allowed"))
 			}
 
-		# Only when the test runner turned it on; unknown otherwise.
+		# Only when the test runner turned it on, unknown otherwise.
 		"/reset" =>
 			if ctx.test_routes {
 				match req.method() {

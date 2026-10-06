@@ -31,7 +31,7 @@ import spec.Spec
 import spec.TestEnvironment
 import Util exposing [fail!, run!]
 
-# Each test runs its own browser; two in flight keeps memory sane.
+# Each test runs its own browser, and two in flight keeps memory sane.
 workers = 2
 
 main! = |_args| {

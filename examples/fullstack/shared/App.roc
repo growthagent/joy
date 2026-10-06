@@ -37,7 +37,7 @@ App := [].{
 
 	## Structurally identical to the Joy platform's `Http.Response`. Spelled
 	## out here because the server app imports this package too and has no
-	## Joy platform to name the type from; records are structural, so the
+	## Joy platform to name the type from. Records are structural, so the
 	## client's Http effects unify with this alias anyway.
 	Response : { status : U16, headers : List({ name : Str, value : Str }), body : List(U8) }
 
@@ -116,7 +116,7 @@ App := [].{
 					[class_list([("todoapp", Bool.True), ("busy", model.busy)])],
 					[App.view_header(model)].concat(body),
 				),
-				# Always rendered so every render has the same structure;
+				# Always rendered so every render has the same structure.
 				# CSS hides it while it is empty.
 				p([class("notice")], [text(model.notice)]),
 				footer(

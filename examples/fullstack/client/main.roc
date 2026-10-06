@@ -61,10 +61,10 @@ update : Model, Msg -> (Model, List(Effect(Msg)))
 update = |model, msg|
 	match msg {
 		# The replies land whatever the state. Each carries the complete
-		# stored list; the model adopts it and the spinner goes away.
+		# stored list. The model adopts it and the spinner goes away.
 		ServerCreated(result) => {
 			(next, effects) = apply_reply(model, result)
-			# A stored create also clears the input; a failed one keeps the
+			# A stored create also clears the input. A failed one keeps the
 			# typed text, so nothing is lost.
 			({ ..next, draft: if next.notice.is_empty() "" else next.draft }, effects)
 		}
@@ -89,7 +89,7 @@ update_idle = |model, msg|
 			if title.is_empty() {
 				(model, [])
 			} else {
-				# The draft stays in the input until the server confirms;
+				# The draft stays in the input until the server confirms.
 				# ServerCreated clears it (see apply_reply's caller).
 				(saving(model), [create_todo(title)])
 			}
@@ -133,7 +133,7 @@ update_idle = |model, msg|
 				Editing(todo_id, edit_text) => {
 					title = edit_text.trim()
 					# The row shows its stored title again while the save is in
-					# flight; the reply brings the new one.
+					# flight, and the reply brings the new one.
 					closed = { ..model, editing: NotEditing }
 					# Committing an emptied-out todo deletes it, per the TodoMVC spec.
 					if title.is_empty() {

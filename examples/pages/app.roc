@@ -60,7 +60,7 @@ init = |path|
 	}
 
 # A message only counts when it is for the page on screen. The arms match
-# the page and the message together; anything else, like a timer that
+# the page and the message together. Anything else, like a timer that
 # fired after its page was left, is dropped.
 update : Model, Msg -> (Model, List(Effect(Msg)))
 update = |model, msg|
