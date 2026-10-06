@@ -1,6 +1,6 @@
 name: Publish the fullstack starter
 
-# When a release is published, push examples/fullstack to
+# When a release is published, push examples/todomvc-fullstack to
 # niclas-ahden/joy-fullstack with its client platform line pointed at the
 # released bundle. The starter repo is a published copy: it is developed and
 # tested in this repo, and the release gate already drove its e2e suite
@@ -67,7 +67,7 @@ jobs:
           url="https://github.com/$GITHUB_REPOSITORY/releases/download/$tag/$archive"
 
           mkdir staging
-          git archive HEAD examples/fullstack | tar -x --strip-components=2 -C staging
+          git archive HEAD examples/todomvc-fullstack | tar -x --strip-components=2 -C staging
 
           sed -i "s|\"\.\./\.\./\.\./platform/main\.roc\"|\"$url\"|" staging/client/main.roc
           # A rewrite that silently matched nothing would publish a starter

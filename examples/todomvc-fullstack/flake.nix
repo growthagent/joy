@@ -1,5 +1,5 @@
 {
-  description = "joy-fullstack";
+  description = "joy-todomvc-fullstack";
 
   nixConfig = {
     extra-substituters = [ "https://niclas-ahden.cachix.org" ];

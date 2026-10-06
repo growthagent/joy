@@ -20,7 +20,7 @@ You can already build single-page applications in it but the functionality is li
 
 As an app grows, split it into pages: each page is a module with its own `Model`, `Msg`, `init`, `update` and `view`, and the app wraps them with `Html.map`, `Effect.map` and `Sub.map`. The [pages example](https://github.com/niclas-ahden/joy/tree/main/examples/pages) gives every page its own URL and holds only the page on screen, the shape of a server-rendered app, and the [spa_pages example](https://github.com/niclas-ahden/joy/tree/main/examples/spa_pages) switches pages in place and keeps every page's state.
 
-Joy also does hydration: serve a page rendered with [`joy-html`](https://www.github.com/niclas-ahden/joy-html) and mount with `hydrate: true`, and the client's first render claims the server-rendered DOM (attaching event handlers) instead of rebuilding it. See the [fullstack example](https://github.com/niclas-ahden/joy/tree/main/examples/fullstack) for the whole story: a server-rendered TodoMVC the client hydrates and persists.
+Joy also does hydration: serve a page rendered with [`joy-html`](https://www.github.com/niclas-ahden/joy-html) and mount with `hydrate: true`, and the client's first render claims the server-rendered DOM (attaching event handlers) instead of rebuilding it. See the [TodoMVC fullstack example](https://github.com/niclas-ahden/joy/tree/main/examples/todomvc-fullstack) for the whole story: a server-rendered TodoMVC the client hydrates and persists.
 
 Have fun and expect breaking changes!
 

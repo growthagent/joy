@@ -3,8 +3,8 @@
 # holds only the page on screen. Leaving a page throws its state away. That
 # is the shape of a server-rendered app the client hydrates, where the
 # server picks the page from the path and each page starts fresh (see
-# examples/fullstack/), so the path is what this app boots from too: the
-# page passes location.pathname as the flags (see www/index.html).
+# examples/todomvc-fullstack/), so the path is what this app boots from
+# too: the page passes location.pathname as the flags (see www/index.html).
 #
 # The page modules are the same as in examples/spa_pages/, which keeps every
 # page's model alive and switches between them in place. Only this file

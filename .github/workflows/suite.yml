@@ -163,15 +163,15 @@ jobs:
         if: inputs.e2e == 'all' || (inputs.e2e == 'linux' && startsWith(matrix.os, 'ubuntu'))
         run: ${{ steps.setup.outputs.prefix }} sh -c 'cd examples/todomvc && roc ./tests.roc'
 
-      # examples/fullstack proves the hydration story end to end: its e2e
+      # examples/todomvc-fullstack proves the hydration story end to end: its e2e
       # builds the client against this checkout's platform (or the bundle,
       # when one is under test), starts the basic-webserver server against a
       # scratch database, and drives the page in Chromium: SSR visible
       # before the wasm, the same nodes live after boot, and the save round
       # trip through SQLite.
-      - name: Drive the fullstack template's e2e
+      - name: Drive the TodoMVC fullstack template's e2e
         if: inputs.e2e == 'all' || (inputs.e2e == 'linux' && startsWith(matrix.os, 'ubuntu'))
-        run: ${{ steps.setup.outputs.prefix }} sh -c 'cd examples/fullstack && roc ./e2e.roc'
+        run: ${{ steps.setup.outputs.prefix }} sh -c 'cd examples/todomvc-fullstack && roc ./e2e.roc'
 
   # SMALL_BUFFERS shrinks the host's outbound buffers so every render takes
   # the growth path. One leg: it only changes the Rust host, so other opt/OS

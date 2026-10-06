@@ -51,7 +51,7 @@ main! = |_args| {
 	# The scratch databases live in a fresh temporary directory, removed
 	# again after the run, so the tests start from nothing and nothing
 	# assumes a Unix /tmp.
-	db_dir = Env.create_temp_dir_with_prefix!("joy-fullstack-e2e-") ? |e| CouldNotCreateTempDir(Str.inspect(e))
+	db_dir = Env.create_temp_dir_with_prefix!("joy-todomvc-fullstack-e2e-") ? |e| CouldNotCreateTempDir(Str.inspect(e))
 	outcome = run_suite!(db_dir, base_port)
 	_ = Path.delete_all!(db_dir) ?? {}
 	outcome
@@ -113,7 +113,7 @@ run_suite! = |db_dir, base_port| {
 	passed = results.count_if(|r| r.passed)
 	total = results.len()
 
-	Stdout.line!("${passed.to_str()}/${total.to_str()} fullstack e2e tests passed")?
+	Stdout.line!("${passed.to_str()}/${total.to_str()} todomvc-fullstack e2e tests passed")?
 
 	if total > 0 and passed == total {
 		Ok({})

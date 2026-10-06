@@ -1,4 +1,4 @@
-# Real-browser E2E for the fullstack example, driven through roc-playwright.
+# Real-browser E2E for the TodoMVC fullstack example, driven through roc-playwright.
 #
 # The claim it proves end to end: the page arrives server-rendered, the
 # client claims that DOM cleanly (window.app.hydration() says so), and the

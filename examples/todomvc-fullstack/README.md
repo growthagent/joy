@@ -1,4 +1,4 @@
-# Joy fullstack example
+# Joy TodoMVC fullstack example
 
 A small full-stack TodoMVC built on [Joy](https://github.com/niclas-ahden/joy), all in [Roc](https://www.roc-lang.org): a wasm client, a server on [basic-webserver](https://github.com/niclas-ahden/basic-webserver) with a SQLite database, and one shared view that the server renders to HTML and the client hydrates. It is a complete app with all of the features you'll need to get started, so clone it and start modifying it!
 
@@ -27,7 +27,7 @@ The database lands in `./todos.db` (set `DB_PATH` to change that) and the schema
 
 Roc is a moving target, so which version you use matters. We test the latest Joy release against the newest nightly every morning and move the name above forward whenever it passes. Each [Joy release](https://github.com/niclas-ahden/joy/releases) also names the nightly it shipped against, under "Roc compiler version".
 
-**Running from the Joy repo instead** (this directory is developed as `examples/fullstack` there): the client's header points at the checkout's platform, so build Joy's wasm host once with `./build.roc -- --opt=speed` at the repo root, and use the repo root's dev shell. Everything else is the same.
+**Running from the Joy repo instead** (this directory is developed as `examples/todomvc-fullstack` there): the client's header points at the checkout's platform, so build Joy's wasm host once with `./build.roc -- --opt=speed` at the repo root, and use the repo root's dev shell. Everything else is the same.
 
 ## How it works
 
