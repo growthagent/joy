@@ -150,61 +150,60 @@ jobs:
           git pull --rebase origin main
           git push
 
-      # Disabled while Joy is released from growthagent/joy for testing.
-      # Uncomment to push to the starter repo again.
-#       # The published starter is a copy of examples/spa-todomvc with no nightly
-#       # CI of its own (people clone it as a template and should not inherit
-#       # our maintenance jobs), so its nightly moves from here. Only when it
-#       # pins the bundle this run tested: a starter that lags the latest
-#       # release must not get a claim proven against another bundle. The next
-#       # publish brings the two back in sync.
-#       - name: Name this nightly in the published starter
-#         env:
-#           NIGHTLY: ${{ needs.resolve.outputs.nightly }}
-#           BUNDLE: ${{ needs.resolve.outputs.bundle }}
-#           TOKEN: ${{ secrets.TODOMVC_PUSH_TOKEN }}
-#         run: |
-#           set -euo pipefail
-#
-#           [ -n "$TOKEN" ] || {
-#             echo "error: the TODOMVC_PUSH_TOKEN secret is missing. Create a fine-grained token with contents read/write on niclas-ahden/joy-todomvc and add it to this repo's secrets." >&2
-#             exit 1
-#           }
-#
-#           git clone --depth=1 "https://x-access-token:${TOKEN}@github.com/niclas-ahden/joy-todomvc" starter
-#           cd starter
-#
-#           if ! grep -qF "platform \"$BUNDLE\"" app.roc; then
-#             pinned=$(sed -n 's|.*platform "\(https://[^"]*\)".*|\1|p' app.roc)
-#             echo "::warning::joy-todomvc pins $pinned, not the tested $BUNDLE, so it keeps its current claim"
-#             exit 0
-#           fi
-#
-#           # The same rule as in this repo: every whole nightly tag in a
-#           # tracked file is the recommended one.
-#           pattern='nightly-[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9a-f]{7,40}'
-#           files=$(git grep -lE "$pattern" -- . ':!.github' || true)
-#           if [ -z "$files" ]; then
-#             # A starter published before it named a nightly. The next
-#             # publish ships one that does.
-#             echo "::warning::no roc nightly named anywhere in the starter, nothing to update"
-#             exit 0
-#           fi
-#
-#           git grep -lzE "$pattern" -- . ':!.github' | xargs -0 sed -i -E "s/$pattern/$NIGHTLY/g"
-#           if git diff --quiet; then
-#             echo "the starter already names $NIGHTLY"
-#             exit 0
-#           fi
-#           git diff --stat
-#
-#           git config user.name 'GitHub Actions'
-#           git config user.email ''
-#           git add -u
-#           git commit -m "Update recommended Roc to $NIGHTLY"
-#           git push
-#           echo "the starter now recommends $NIGHTLY"
-#
+      # The published starter is a copy of examples/spa-todomvc with no nightly
+      # CI of its own (people clone it as a template and should not inherit
+      # our maintenance jobs), so its nightly moves from here. Only when it
+      # pins the bundle this run tested: a starter that lags the latest
+      # release must not get a claim proven against another bundle. The next
+      # publish brings the two back in sync.
+      - name: Name this nightly in the published starter
+        if: github.repository == 'niclas-ahden/joy'
+        env:
+          NIGHTLY: ${{ needs.resolve.outputs.nightly }}
+          BUNDLE: ${{ needs.resolve.outputs.bundle }}
+          TOKEN: ${{ secrets.TODOMVC_PUSH_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          [ -n "$TOKEN" ] || {
+            echo "error: the TODOMVC_PUSH_TOKEN secret is missing. Create a fine-grained token with contents read/write on niclas-ahden/joy-todomvc and add it to this repo's secrets." >&2
+            exit 1
+          }
+
+          git clone --depth=1 "https://x-access-token:${TOKEN}@github.com/niclas-ahden/joy-todomvc" starter
+          cd starter
+
+          if ! grep -qF "platform \"$BUNDLE\"" app.roc; then
+            pinned=$(sed -n 's|.*platform "\(https://[^"]*\)".*|\1|p' app.roc)
+            echo "::warning::joy-todomvc pins $pinned, not the tested $BUNDLE, so it keeps its current claim"
+            exit 0
+          fi
+
+          # The same rule as in this repo: every whole nightly tag in a
+          # tracked file is the recommended one.
+          pattern='nightly-[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9a-f]{7,40}'
+          files=$(git grep -lE "$pattern" -- . ':!.github' || true)
+          if [ -z "$files" ]; then
+            # A starter published before it named a nightly. The next
+            # publish ships one that does.
+            echo "::warning::no roc nightly named anywhere in the starter, nothing to update"
+            exit 0
+          fi
+
+          git grep -lzE "$pattern" -- . ':!.github' | xargs -0 sed -i -E "s/$pattern/$NIGHTLY/g"
+          if git diff --quiet; then
+            echo "the starter already names $NIGHTLY"
+            exit 0
+          fi
+          git diff --stat
+
+          git config user.name 'GitHub Actions'
+          git config user.email ''
+          git add -u
+          git commit -m "Update recommended Roc to $NIGHTLY"
+          git push
+          echo "the starter now recommends $NIGHTLY"
+
       - name: Name this nightly in the release notes
         env:
           GH_TOKEN: ${{ github.token }}
