@@ -22,7 +22,14 @@ As an app grows, split it into pages: each page is a module with its own `Model`
 
 Joy also does hydration: serve a page rendered with [`joy-html`](https://www.github.com/niclas-ahden/joy-html) and mount with `hydrate: true`, and the client's first render claims the server-rendered DOM (attaching event handlers) instead of rebuilding it. See the [TodoMVC fullstack example](https://github.com/niclas-ahden/joy/tree/main/examples/todomvc-fullstack) for the whole story: a server-rendered TodoMVC the client hydrates and persists.
 
+Joy shares the page with whatever else is on it. Browser extensions and embedded widgets put nodes of their own among the app's (a speed control next to a video, a password manager's icon next to a field, a map drawn into an empty container), and Joy leaves them alone: it keeps track of its own nodes itself and never goes by their position in the DOM. That holds while a server-rendered page waits for its app to load, too, with one difference: nodes an extension puts in place of the page's own in that time (a translation for a text, a wrapper around a video) give way to the app's nodes when it starts, so the page never shows both.
+
 Have fun and expect breaking changes!
+
+### Known issues
+
+- Known issue: on a server-rendered page, a node an extension or another script adds before Joy's script has called `mount` cannot be told apart from the server's markup. Hydration removes it when it sits in front of a node the app expects (and warns about a mismatch), or takes it for the app's own when its tag matches. Nodes added from the `mount` call on are left alone.
+- Known issue: an extension that replaces the app's text with nodes of its own, the way a page translator does, leaves Joy updating the original text nodes off the page, so later changes to that text do not show. Extensions that add nodes next to the app's are fine, and so are ones that wrap them once the app is running.
 
 ## Example
 
