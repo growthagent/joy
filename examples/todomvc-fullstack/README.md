@@ -4,7 +4,7 @@ A small full-stack TodoMVC built on [Joy](https://github.com/niclas-ahden/joy), 
 
 ## Run it
 
-You need Roc on your PATH (we recommend [`roc nightly-2026-08-26-b29bef3`](https://github.com/roc-lang/nightlies/releases/tag/nightly-2026-08-26-b29bef3)). Download the archive for your platform from that page, extract it, and put the `roc` binary on your PATH. If you use Nix, `nix develop` hands you a pinned compiler instead.
+You need Roc on your PATH (we recommend [`roc nightly-2026-10-06-c34079d`](https://github.com/roc-lang/nightlies/releases/tag/nightly-2026-10-06-c34079d)). Download the archive for your platform from that page, extract it, and put the `roc` binary on your PATH. If you use Nix, `nix develop` hands you a pinned compiler instead.
 
 Then:
 
