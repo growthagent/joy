@@ -211,6 +211,17 @@ jobs:
           .github/scripts/name-nightly.sh \
             "${{ needs.resolve.outputs.joy }}" "${{ needs.resolve.outputs.nightly }}"
 
+  # Refresh versions.json every morning, whether or not the nightly passed. A
+  # green run may have named a new nightly above, and the file is written
+  # from the releases, so one deleted since yesterday drops out on a red day
+  # too. The notes edit above triggers nothing (see versions-index.yml).
+  versions-index:
+    needs: [update-recommendation]
+    if: always()
+    permissions:
+      contents: write
+    uses: ./.github/workflows/versions-index.yml
+
   name-commit-range:
     name: Name the commit range
     needs: [resolve, test]
