@@ -1,0 +1,1806 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Joy Field Guide</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a fixed index column on the left, one topic at a time in a reading
+   column on the right, code set as wider slips that may scroll on their own. */
+:root {
+  --paper: #f6f7fb;
+  --sheet: #ffffff;
+  --ink: #171923;
+  --muted: #586074;
+  --rule: #dde1ea;
+  --violet: #5b2fd6;
+  --violet-soft: #ece6ff;
+  --sun: #a86a00;
+  --sun-soft: #fff2d6;
+  --code-bg: #f0f2f8;
+  --code-ink: #23263a;
+  --syn-kw: #6a2fd8;
+  --syn-type: #0b5f8a;
+  --syn-str: #1f7a4a;
+  --syn-com: #7a8094;
+  --syn-num: #a35400;
+  --syn-op: #8a3d6f;
+
+  --font-display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --step--1: 0.875rem;
+  --step-0: 1.0625rem;
+  --step-1: 1.25rem;
+  --step-2: 1.6rem;
+  --step-3: 2.3rem;
+
+  --index-width: 17.5rem;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #111219;
+    --sheet: #171923;
+    --ink: #e7e8f0;
+    --muted: #9aa1b5;
+    --rule: #2b2e3b;
+    --violet: #a990ff;
+    --violet-soft: #2a2145;
+    --sun: #f2b84b;
+    --sun-soft: #2e2512;
+    --code-bg: #1b1d29;
+    --code-ink: #dfe1ec;
+    --syn-kw: #b79bff;
+    --syn-type: #7cc4ef;
+    --syn-str: #8fd6a7;
+    --syn-com: #7d849a;
+    --syn-num: #f2b46b;
+    --syn-op: #e59ac8;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #111219;
+  --sheet: #171923;
+  --ink: #e7e8f0;
+  --muted: #9aa1b5;
+  --rule: #2b2e3b;
+  --violet: #a990ff;
+  --violet-soft: #2a2145;
+  --sun: #f2b84b;
+  --sun-soft: #2e2512;
+  --code-bg: #1b1d29;
+  --code-ink: #dfe1ec;
+  --syn-kw: #b79bff;
+  --syn-type: #7cc4ef;
+  --syn-str: #8fd6a7;
+  --syn-com: #7d849a;
+  --syn-num: #f2b46b;
+  --syn-op: #e59ac8;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  line-height: 1.6;
+}
+a { color: var(--violet); text-underline-offset: 0.18em; }
+a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid var(--violet); outline-offset: 2px; border-radius: 4px; }
+
+.shell {
+  display: grid;
+  grid-template-columns: var(--index-width) minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+/* The index */
+.index {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  border-right: 1px solid var(--rule);
+  background: var(--sheet);
+  padding-block: 1.5rem 2rem;
+  padding-left: max(1.25rem, env(safe-area-inset-left, 0px));
+  padding-right: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+.brand { display: flex; flex-direction: column; gap: 0.15rem; }
+.brand-name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--step-2);
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+  margin: 0;
+}
+.brand-name span { color: var(--violet); }
+.brand-sub { color: var(--muted); font-size: var(--step--1); margin: 0; }
+.docs-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  background: var(--violet-soft);
+  font-size: var(--step--1);
+}
+.docs-links a { color: var(--violet); font-weight: 700; text-decoration: none; }
+.docs-links a:hover { text-decoration: underline; }
+.docs-links span { color: var(--muted); font-weight: 400; }
+
+.filter {
+  width: 100%;
+  font: inherit;
+  font-size: var(--step--1);
+  padding: 0.5rem 0.65rem;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: var(--paper);
+  color: var(--ink);
+}
+.filter::placeholder { color: var(--muted); }
+
+.toc { display: flex; flex-direction: column; gap: 1.1rem; }
+.toc-part { display: flex; flex-direction: column; gap: 0.15rem; }
+.toc-part h2 {
+  margin: 0 0 0.3rem;
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.toc a {
+  display: grid;
+  grid-template-columns: 1.6rem minmax(0, 1fr);
+  align-items: baseline;
+  gap: 0.25rem;
+  text-decoration: none;
+  color: var(--ink);
+  font-size: 0.95rem;
+  line-height: 1.35;
+  padding: 0.32rem 0.5rem;
+  border-radius: 6px;
+}
+.toc a .n {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.toc a:hover { background: var(--paper); }
+.toc a[aria-current="page"] { background: var(--violet-soft); color: var(--violet); font-weight: 700; }
+.toc a[aria-current="page"] .n { color: var(--violet); }
+.toc-empty { color: var(--muted); font-size: var(--step--1); margin: 0; }
+.index-foot { margin-top: auto; color: var(--muted); font-size: 0.8rem; line-height: 1.5; }
+
+/* The phone bar, shown instead of the sticky index on narrow screens */
+.bar { display: none; }
+
+/* The reading column */
+.reader {
+  min-width: 0;
+  padding-block: 3rem 5rem;
+  padding-left: max(2.5rem, env(safe-area-inset-left, 0px));
+  padding-right: max(2.5rem, env(safe-area-inset-right, 0px));
+}
+.topic { max-width: 46rem; }
+.topic[hidden] { display: none !important; }
+.eyebrow {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--sun);
+  margin: 0 0 0.6rem;
+}
+.topic h1 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--step-3);
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+  margin: 0 0 1rem;
+  text-wrap: balance;
+}
+.topic h2 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--step-1);
+  margin: 2.2rem 0 0.6rem;
+  text-wrap: balance;
+}
+.topic h3 { font-size: var(--step-0); margin: 1.6rem 0 0.4rem; }
+.topic p, .topic li { max-width: 65ch; }
+.topic p { margin: 0 0 1rem; }
+.lead { font-size: var(--step-1); line-height: 1.5; color: var(--ink); }
+.topic ul, .topic ol { padding-left: 1.3rem; margin: 0 0 1rem; display: flex; flex-direction: column; gap: 0.35rem; }
+.topic code {
+  font-family: var(--font-mono);
+  font-size: 0.86em;
+  background: var(--code-bg);
+  color: var(--code-ink);
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+}
+.topic strong { font-weight: 700; }
+
+/* Code slips */
+.code {
+  position: relative;
+  margin: 0 0 1.25rem;
+  max-width: 54rem;
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  background: var(--code-bg);
+}
+.code-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.35rem 0.5rem 0.35rem 0.85rem;
+  border-bottom: 1px solid var(--rule);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+.code-head .file { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.copy {
+  font: inherit;
+  font-size: 0.75rem;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid var(--rule);
+  border-radius: 5px;
+  padding: 0.15rem 0.5rem;
+  cursor: pointer;
+}
+.copy:hover { color: var(--ink); }
+.code pre {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 0.84rem;
+  line-height: 1.6;
+  color: var(--code-ink);
+  tab-size: 4;
+}
+.code pre code { background: none; padding: 0; font-size: inherit; color: inherit; }
+.k { color: var(--syn-kw); font-weight: 600; }
+.t { color: var(--syn-type); }
+.s { color: var(--syn-str); }
+.c { color: var(--syn-com); font-style: italic; }
+.u { color: var(--syn-num); }
+.o { color: var(--syn-op); }
+
+/* Notes */
+.note {
+  margin: 0 0 1.25rem;
+  padding: 0.85rem 1rem;
+  background: var(--sun-soft);
+  border-radius: 8px;
+  max-width: 65ch;
+}
+.note-label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--sun);
+  margin-bottom: 0.25rem;
+}
+.note p:last-child, .note ul:last-child { margin-bottom: 0; }
+
+/* The update loop */
+.loop {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0 0 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+}
+.loop .step {
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: var(--sheet);
+}
+.loop .step.you { border-color: var(--violet); color: var(--violet); }
+.loop .arrow { color: var(--muted); }
+.loop-caption { color: var(--muted); font-size: var(--step--1); margin: 0 0 1.5rem; }
+
+/* Three folders */
+.folders {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 0 0 1.5rem;
+  max-width: 54rem;
+}
+.folder {
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  background: var(--sheet);
+  padding: 0.85rem 0.95rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 0;
+}
+.folder h3 { margin: 0; font-family: var(--font-mono); font-size: 0.95rem; color: var(--violet); }
+.folder p { margin: 0; font-size: var(--step--1); color: var(--muted); }
+.folder ul { margin: 0; padding-left: 1.1rem; font-size: var(--step--1); gap: 0.15rem; }
+
+/* Two sides of server rendering */
+.sides {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 0 0 1.5rem;
+  max-width: 54rem;
+}
+.side { border: 1px solid var(--rule); border-radius: 8px; background: var(--sheet); padding: 0.85rem 1rem; min-width: 0; }
+.side h3 { margin: 0 0 0.5rem; font-size: var(--step-0); }
+.side ol { margin: 0; font-size: 0.95rem; }
+
+/* The ladder of APIs */
+.ladder { list-style: none; padding: 0; margin: 0 0 1.5rem; display: flex; flex-direction: column; gap: 0.6rem; max-width: 54rem; }
+.ladder li {
+  display: grid;
+  grid-template-columns: 2.2rem minmax(0, 1fr);
+  gap: 0.75rem;
+  align-items: start;
+  max-width: none;
+}
+.rung {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--step-1);
+  color: var(--violet);
+  line-height: 1.2;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.ladder h3 { margin: 0 0 0.2rem; }
+.ladder p { margin: 0 0 0.5rem; }
+
+/* Tables */
+.table-wrap { overflow-x: auto; margin: 0 0 1.25rem; max-width: 54rem; }
+table { border-collapse: collapse; width: 100%; font-size: 0.95rem; }
+th, td { text-align: left; padding: 0.5rem 0.7rem; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+td code { white-space: nowrap; }
+
+/* Paging between topics */
+.pager {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 3rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--rule);
+  max-width: 46rem;
+}
+.pager a {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  text-decoration: none;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  background: var(--sheet);
+  color: var(--ink);
+  min-width: 0;
+}
+.pager a:hover { border-color: var(--violet); }
+.pager .dir { font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.pager .name { font-weight: 700; color: var(--violet); }
+.pager .next { text-align: right; grid-column: 2; }
+
+@media (max-width: 880px) {
+  .shell { grid-template-columns: minmax(0, 1fr); }
+  .bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    position: sticky;
+    top: env(safe-area-inset-top, 0px);
+    z-index: 20;
+    background: var(--sheet);
+    border-bottom: 1px solid var(--rule);
+    padding-block: 0.6rem;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--sheet); }
+  .bar .brand-name { font-size: var(--step-1); }
+  .bar button {
+    font: inherit;
+    font-size: var(--step--1);
+    font-weight: 700;
+    color: var(--violet);
+    background: var(--violet-soft);
+    border: 0;
+    border-radius: 6px;
+    padding: 0.45rem 0.75rem;
+    cursor: pointer;
+  }
+  .index {
+    position: static;
+    height: auto;
+    border-right: 0;
+    border-bottom: 1px solid var(--rule);
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  .index .brand { display: none; }
+  .index-foot { display: none; }
+  .shell:not(.menu-open) .index { display: none; }
+  .reader {
+    padding-block: 2rem 4rem;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  .topic h1 { font-size: 1.9rem; }
+  .folders, .sides { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .topic:not([hidden]) { animation: rise 220ms ease-out; }
+  @keyframes rise { from { transform: translateY(6px); opacity: 0.6; } to { transform: none; opacity: 1; } }
+}
+</style>
+<div class="shell" id="shell">
+
+<header class="bar">
+  <p class="brand-name">Joy <span>Field Guide</span></p>
+  <button type="button" id="menu-button" aria-expanded="false" aria-controls="index">Topics</button>
+</header>
+
+<nav class="index" id="index" aria-label="Topics">
+  <div class="brand">
+    <p class="brand-name">Joy <span>Field Guide</span></p>
+    <p class="brand-sub">Building and structuring web apps in Roc</p>
+  </div>
+  <p class="docs-links">
+    <a href="./LATESTVERSION/">API docs <span>for LATESTVERSION</span></a>
+    <a href="./main/">API docs <span>for the main branch</span></a>
+  </p>
+  <label for="filter" class="eyebrow" style="margin:0">Find a topic</label>
+  <input class="filter" id="filter" type="search" placeholder="Effects, routes, components..." autocomplete="off">
+  <div class="toc" id="toc"></div>
+  <p class="toc-empty" id="toc-empty" hidden>No topic matches. Try another word.</p>
+  <p class="index-foot">Written for Joy as of autumn 2026. Joy is in early development, so check the examples in the Joy repository when something here does not compile.</p>
+</nav>
+
+<main class="reader" id="reader">
+
+<!-- ============================ PART 1 ============================ -->
+
+<section class="topic" data-topic="welcome" data-part="Start here" data-title="What Joy is" data-keywords="intro overview roc wasm webassembly elm architecture platform runtime">
+  <p class="eyebrow">Start here</p>
+  <h1>What Joy is</h1>
+  <p class="lead">Joy is a framework for building web apps in Roc. Your app compiles to WebAssembly and runs in the browser, and the same Roc code that draws a page there can draw it on the server.</p>
+  <p>A Joy app is written in the shape that Elm made popular, often called The Elm Architecture. All of the app's state lives in one value, the <strong>model</strong>. Things that happen arrive as <strong>messages</strong>. A function called <code>update</code> turns a model and a message into the next model, and a function called <code>render</code> turns a model into HTML. Joy does the rest: it listens for events, calls your functions, and changes only the parts of the page that need to change.</p>
+
+  <h2>What you get</h2>
+  <ul>
+    <li><strong>The platform.</strong> The Roc platform your app runs on. It gives you effects and subscriptions for HTTP, timers, the keyboard, the DOM, ports to JavaScript, Web Crypto and media recording.</li>
+    <li><strong>joy-html.</strong> A package with the <code>Html</code> and <code>Attribute</code> types. The server and the browser use the same types, so one view can be rendered on either side.</li>
+    <li><strong>joy.js.</strong> The one script a page includes: the runtime that runs a bundle, with the browser code of the features your bundles call, and the few lines that mount every bundle the page names. <code>runtime.js</code> is the same runtime as a library, for embedding a bundle by hand.</li>
+    <li><strong>./joy.</strong> The command line. It finds the bundles in your project, builds them, hot reloads them into open pages while you work, and keeps your app and itself on a Joy release.</li>
+  </ul>
+
+  <h2>How this guide is laid out</h2>
+  <p><strong>Start here</strong> builds a browser app one idea at a time: the update loop, views, effects, subscriptions and flags. <strong>Growing an app</strong> covers what changes when an app has several pages and a server: three folders, server rendering, bundles, routes and typed endpoints. <strong>Structuring for scale</strong> is about the decisions that keep a large app pleasant to work in: how to reuse a piece of UI, when something should have its own model, and how to let types do the checking for you. Much of that part comes from the Elm community, where these questions were worked out first.</p>
+
+  <div class="note">
+    <span class="note-label">Before you start</span>
+    <p>Joy is in early development. The API still changes between releases, so when an example here does not compile, compare it with the examples in the Joy repository, which are kept building against the current platform.</p>
+  </div>
+
+  <h2>Running the examples</h2>
+  <p>Clone the Joy repository and enter its development shell with <code>nix develop</code>, which gives you the right Roc compiler, Rust and the other tools. Without Nix, the README lists what to install. Then run any example:</p>
+  <div class="code" data-lang="sh" data-file="in the joy repository"><pre><code>$ ./watch.roc examples/counter.roc</code></pre></div>
+  <p>The app is now at <code>http://localhost:8000</code>. The example is rebuilt when you save it, and a refresh shows the change.</p>
+</section>
+
+<section class="topic" data-topic="first-app" data-part="Start here" data-title="Your first app" data-keywords="header app counter model msg init update render subscriptions platform">
+  <p class="eyebrow">Start here</p>
+  <h1>Your first app</h1>
+  <p class="lead">A Joy app is one Roc file that names its platform and provides six things: <code>Model</code>, <code>Msg</code>, <code>init</code>, <code>update</code>, <code>render</code> and <code>subscriptions</code>.</p>
+
+  <h2>The header</h2>
+  <p>The first lines say which platform the app runs on and which packages it uses. Every Joy app needs Joy's platform as <code>pf</code> and joy-html as <code>html</code>.</p>
+  <div class="code" data-lang="roc" data-file="client/counter.roc"><pre><code>app [Model, Msg, init, update, render, subscriptions] {
+    pf: platform "https://github.com/niclas-ahden/joy/releases/download/VERSION/HASH.tar.zst",
+    html: "https://github.com/niclas-ahden/joy-html/releases/download/0.17.0/AcmwFzyfbsf5RALWNdX6cXw1cuuDXt96YfcysNqgFqoG.tar.zst",
+}</code></pre></div>
+  <p>Take the platform URL from the latest release on the Joy releases page. The examples inside the Joy repository use <code>pf: platform "../platform/main.roc"</code> instead, so they build against the checkout.</p>
+
+  <h2>A counter</h2>
+  <div class="code" data-lang="roc" data-file="client/counter.roc"><pre><code>import html.Html exposing [div, button, text]
+import html.Attribute exposing [id, on_click]
+import pf.Effect
+
+Model : { count : I64 }
+
+Msg : [Increment, Decrement]
+
+subscriptions = |_model| []
+
+init : Str -> (Model, List(Effect(Msg)))
+init = |_flags| ({ count: 0 }, [])
+
+update : Model, Msg -> (Model, List(Effect(Msg)))
+update = |model, msg|
+    match msg {
+        Increment => ({ count: model.count + 1 }, [])
+        Decrement => ({ count: model.count - 1 }, [])
+    }
+
+render : Model -> Html(Msg)
+render = |model|
+    div(
+        [],
+        [
+            button([id("increment"), on_click(Increment)], [text("+")]),
+            text(model.count.to_str()),
+            button([id("decrement"), on_click(Decrement)], [text("-")]),
+        ],
+    )</code></pre></div>
+
+  <h2>The six parts</h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Part</th><th>What it is</th></tr></thead>
+    <tbody>
+      <tr><td><code>Model</code></td><td>Everything the app knows. Here a single count.</td></tr>
+      <tr><td><code>Msg</code></td><td>Everything that can happen, as a tag union. Here two buttons.</td></tr>
+      <tr><td><code>init</code></td><td>The first model, and any effects to start with. It receives the app's flags as a string (see Flags).</td></tr>
+      <tr><td><code>update</code></td><td>The next model after a message, and the effects to run.</td></tr>
+      <tr><td><code>render</code></td><td>The page for a model. It is called again after every update.</td></tr>
+      <tr><td><code>subscriptions</code></td><td>The outside events the app wants to hear about right now, like a timer. Here none.</td></tr>
+    </tbody>
+  </table></div>
+  <p><code>update</code> and <code>render</code> are plain functions. They read their arguments and return values, and they cannot fetch data, start timers or touch the DOM. Anything like that is an effect: a value <code>update</code> returns and Joy carries out. That one rule is why a Joy app is easy to follow. To know how the app got into a state, you only need to look at the messages it received.</p>
+  <p>A file like this one is what Joy calls a <strong>bundle</strong>: an app on the Joy platform, one file that becomes one wasm. <code>./joy build</code> finds every bundle in <code>client/</code> by that header and builds it, and a page can hold one or several. Bundles, under Growing an app, has the whole of it. For now one file is the whole app.</p>
+
+  <h2>Running it</h2>
+  <p>The page that shows the app is a plain HTML file in <code>public/</code>. It has an element that names the bundle and loads <code>joy.js</code>, as Flags shows. Then start the development loop:</p>
+  <div class="code" data-lang="sh"><pre><code>$ ./joy dev</code></pre></div>
+  <p>The app is now at <code>http://localhost:8000</code>. Save <code>client/counter.roc</code> and the open page takes the new build without a reload: the count you clicked up to stays. A build that fails shows roc's report over the page until the next one succeeds. The ./joy command, under Reference, has the rest.</p>
+</section>
+
+<section class="topic" data-topic="loop" data-part="Start here" data-title="The update loop" data-keywords="elm architecture tea cycle update render effects messages flow">
+  <p class="eyebrow">Start here</p>
+  <h1>The update loop</h1>
+  <p class="lead">Every Joy app runs the same loop. Knowing it by heart makes every other topic in this guide easier.</p>
+
+  <div class="loop" role="img" aria-label="The loop: render turns the model into Html, Joy updates the page, an event becomes a message, update returns a new model and effects, and the loop starts over.">
+    <span class="step">Model</span><span class="arrow">→</span>
+    <span class="step you">render(model)</span><span class="arrow">→</span>
+    <span class="step">Html(Msg)</span><span class="arrow">→</span>
+    <span class="step">Joy updates the page</span><span class="arrow">→</span>
+    <span class="step">a click, a keypress, an answer</span><span class="arrow">→</span>
+    <span class="step">Msg</span><span class="arrow">→</span>
+    <span class="step you">update(model, msg)</span><span class="arrow">→</span>
+    <span class="step">(Model, effects)</span><span class="arrow">↺</span>
+  </div>
+  <p class="loop-caption">Highlighted steps are the functions you write. Joy does everything else.</p>
+
+  <ol>
+    <li>Joy calls <code>render</code> with the current model and gets back a tree of <code>Html(Msg)</code>.</li>
+    <li>Joy compares it with the last tree and changes only what differs on the page.</li>
+    <li>Something happens: the user clicks a button that carries <code>on_click(Increment)</code>, a timer fires, or an HTTP request answers. Each of these becomes a message.</li>
+    <li>Joy calls <code>update</code> with the model and the message. You return the next model and a list of effects.</li>
+    <li>Joy runs the effects. When one of them finishes, its result comes back as another message, through step 3.</li>
+  </ol>
+
+  <h2>What follows from it</h2>
+  <ul>
+    <li><strong>One source of truth.</strong> The page is always <code>render(model)</code>. There is no hidden state in the DOM that the model does not know about.</li>
+    <li><strong>Effects are data.</strong> <code>update</code> describes what should happen. Joy decides when and how. That makes <code>update</code> easy to test: call it and look at what it returns.</li>
+    <li><strong>Messages are the history.</strong> Every change to the model came from a message, so a list of messages explains how the app got where it is.</li>
+  </ul>
+</section>
+
+<section class="topic" data-topic="views" data-part="Start here" data-title="Views" data-keywords="html attribute joy-html events on_click on_input map inert msg">
+  <p class="eyebrow">Start here</p>
+  <h1>Views</h1>
+  <p class="lead">Views are built with joy-html. An element is a function that takes a list of attributes and a list of children.</p>
+  <div class="code" data-lang="roc"><pre><code>import html.Html exposing [div, h1, input, label, p, text]
+import html.Attribute exposing [class, for_, id, on_input, value]
+
+search_box : Str -> Html(Msg)
+search_box = |query|
+    div(
+        [class("search")],
+        [
+            label([for_("query")], [text("Search")]),
+            input([id("query"), value(query), on_input(|typed| UserTypedQuery(typed))]),
+        ],
+    )</code></pre></div>
+  <p>Events are attributes that carry a message. <code>on_click(UserClickedSave)</code> sends a message as it is. <code>on_input</code> and other events that come with a value take a function from the value to a message.</p>
+
+  <h2>The type tells you what a view can do</h2>
+  <p>Look at the type a view returns:</p>
+  <ul>
+    <li><code>Html(Msg)</code> can send the messages of <code>Msg</code>. It may have buttons, inputs or links that do something.</li>
+    <li><code>Html(msg)</code> with a lowercase type variable can send nothing. It works inside any page because it never produces a message of its own. A heading, a price, an error text.</li>
+  </ul>
+  <div class="code" data-lang="roc"><pre><code>## Inert: works on any page, can never send a message.
+price_tag : I64 -> Html(msg)
+price_tag = |kronor| p([class("price")], [text("${kronor.to_str()} kr")])</code></pre></div>
+  <p>Use the lowercase form whenever a view has no events. Readers learn something at a glance, and the view can be used on any page without wrapping.</p>
+
+  <h2>Html.map</h2>
+  <p>When a part of the page has its own message type, <code>Html.map</code> wraps every message it sends into a message of the page:</p>
+  <div class="code" data-lang="roc"><pre><code>Html.map(Counter.view(model.counter), |m| Counter(m))</code></pre></div>
+  <p>You will see this whenever an app is split into pages, in Pages, and when a piece of UI has its own state, in Components.</p>
+</section>
+
+<section class="topic" data-topic="effects" data-part="Start here" data-title="Effects" data-keywords="http time debounce dom modal console port webcrypto media effect map">
+  <p class="eyebrow">Start here</p>
+  <h1>Effects</h1>
+  <p class="lead">An effect is a description of something to do: send a request, wait, open a dialog. <code>update</code> returns effects, and Joy runs them.</p>
+  <div class="code" data-lang="roc" data-file="examples/http.roc, shortened"><pre><code>import pf.Effect
+import pf.Http
+
+Model : { quote : [NotRequestedYet, Loading, Loaded(Str), Error(Str)] }
+
+Msg : [
+    UserRequestedQuote,
+    GotQuote(Try(Http.Response, [HttpErr([Timeout, NetworkError])])),
+]
+
+update : Model, Msg -> (Model, List(Effect(Msg)))
+update = |_model, msg|
+    match msg {
+        UserRequestedQuote =>
+            ({ quote: Loading }, [Http.get("https://example.com/quote", |result| GotQuote(result))])
+
+        GotQuote(Ok(response)) =>
+            ({ quote: Loaded(Str.from_utf8_lossy(response.body)) }, [])
+
+        GotQuote(Err(HttpErr(Timeout))) => ({ quote: Error("The request timed out") }, [])
+        GotQuote(Err(HttpErr(NetworkError))) => ({ quote: Error("The request never completed") }, [])
+    }</code></pre></div>
+  <p>The model changes to <code>Loading</code> at once, and the request goes out. When it answers, its result arrives as <code>GotQuote</code>. Notice that the quote's state is one tag union, not a loading flag plus an error string. More on that in State as types.</p>
+
+  <h2>What the platform offers</h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Module</th><th>For example</th></tr></thead>
+    <tbody>
+      <tr><td><code>pf.Http</code></td><td><code>Http.get(url, to_msg)</code>, <code>Http.post</code>, <code>Http.request</code>, file uploads</td></tr>
+      <tr><td><code>pf.Time</code></td><td><code>Time.after(ms, to_msg)</code>, <code>Time.debounce(key, ms, to_msg)</code>, <code>Time.cancel(key)</code></td></tr>
+      <tr><td><code>pf.DOM</code></td><td><code>DOM.show_modal("#confirm")</code>, <code>DOM.close_modal</code>, <code>DOM.focus</code>, <code>DOM.push_url</code>, <code>DOM.replace_url</code></td></tr>
+      <tr><td><code>pf.Console</code></td><td><code>Console.log(text)</code></td></tr>
+      <tr><td><code>pf.Port</code></td><td>Sending values to your own JavaScript and hearing back from it</td></tr>
+      <tr><td><code>pf.WebCrypto</code></td><td>Hashing data and files in the browser</td></tr>
+      <tr><td><code>pf.Media</code></td><td>Recording from the microphone or camera, playing audio and video</td></tr>
+    </tbody>
+  </table></div>
+  <p>Only the browser code of the features your bundles call ends up in <code>joy.js</code>, so a site that never records audio does not ship the recording code.</p>
+
+  <h2>A debounce</h2>
+  <p>A search field should not send a request on every keystroke. <code>Time.debounce</code> restarts a named timer each time it is returned, so only the last keystroke in a pause gets through:</p>
+  <div class="code" data-lang="roc"><pre><code>UserTypedQuery(query) =>
+    ({ ..model, query }, [Time.debounce("search", 200, |_| UserPausedTyping)])
+
+UserPausedTyping =>
+    (model, [Http.get(search_url(model.query), |result| ServerAnsweredSearch(result))])</code></pre></div>
+
+  <h2>Effect.map</h2>
+  <p>Like <code>Html.map</code>, <code>Effect.map</code> changes the message an effect will produce. You need it when a page or component returns effects of its own message type:</p>
+  <div class="code" data-lang="roc"><pre><code>effects.map(|effect| Effect.map(effect, |m| Counter(m)))</code></pre></div>
+</section>
+
+<section class="topic" data-topic="subscriptions" data-part="Start here" data-title="Subscriptions" data-keywords="sub time every keyboard on_down_keys listen map">
+  <p class="eyebrow">Start here</p>
+  <h1>Subscriptions</h1>
+  <p class="lead">An effect happens once. A subscription keeps sending messages for as long as the app asks for it.</p>
+  <p>After every update Joy calls <code>subscriptions</code> with the new model. Whatever list it returns is what the app listens to from then on. A subscription you stop returning is stopped.</p>
+  <div class="code" data-lang="roc"><pre><code>import pf.Keyboard
+import pf.Sub
+import pf.Time
+
+subscriptions : Model -> List(Sub(Msg))
+subscriptions = |model| {
+    ticking = if model.running [Time.every(1000, |now| Tick(now))] else []
+    escape = if model.dialog_open [Keyboard.on_down_keys(["Escape"], |_| UserPressedEscape)] else []
+    ticking.concat(escape)
+}</code></pre></div>
+  <p>The clock ticks only while <code>running</code> is true, and Escape is only heard while the dialog is open. Because subscriptions follow the model, they can never get out of step with it. The same holds for the microphone in <code>pf.Media</code>: it is open exactly while the app subscribes to it.</p>
+  <p><code>Sub.map</code> wraps a subscription's messages, the same way <code>Html.map</code> and <code>Effect.map</code> do.</p>
+</section>
+
+<section class="topic" data-topic="flags" data-part="Start here" data-title="Flags" data-keywords="flags init mount json parse javascript start data">
+  <p class="eyebrow">Start here</p>
+  <h1>Flags</h1>
+  <p class="lead">Flags are the data an app starts from. The page writes them on the bundle's root element, and <code>init</code> receives them as a string.</p>
+  <div class="code" data-lang="html" data-file="public/index.html"><pre><code>&lt;div data-joy-bundle="app" data-joy-flags='{"name": "Brödil", "karma": 99}'&gt;&lt;/div&gt;
+&lt;script type="module" src="./joy.js"&gt;&lt;/script&gt;</code></pre></div>
+  <p><code>joy.js</code> is the loader <code>./joy build</code> writes next to your bundles, with the runtime built into it, so it is the only script a page loads. The build copies <code>public/</code> in beside it, which is why the page can name it as <code>./joy.js</code>. It mounts a bundle on every element that names one, with the flags on that element, by calling the runtime's <code>mount</code>. You can import <code>mount</code> from <code>runtime.js</code> and call it yourself instead when you embed a bundle by hand.</p>
+  <p>Flags are usually JSON. <code>Json.parse</code> decodes them into the type the code expects, and a mismatch is an error you can show instead of a crash:</p>
+  <div class="code" data-lang="roc" data-file="examples/flags.roc, shortened"><pre><code>Model : [
+    Human({ name : Str, karma : I32 }),
+    FailedToParseFlags(Str),
+]
+
+init : Str -> (Model, List(Effect(Msg)))
+init = |flags|
+    match Json.parse(flags) {
+        Ok({ name, karma }) => (Human({ name, karma }), [])
+        Err(problem) => (
+            FailedToParseFlags(flags),
+            [Console.log("Could not read the flags: ${Str.inspect(problem)}")],
+        )
+    }</code></pre></div>
+  <p>In a full-stack app the flags are the page's model: the server builds it, writes it on the bundle's root, and the client starts from exactly that value. That is how hydration works, in Server rendering.</p>
+</section>
+
+<!-- ============================ PART 2 ============================ -->
+
+<section class="topic" data-topic="pages" data-part="Growing an app" data-title="Pages" data-keywords="pages spa page module html map effect map sub map routing model union">
+  <p class="eyebrow">Growing an app</p>
+  <h1>Pages</h1>
+  <p class="lead">When an app grows, split it into pages. A page is a module with its own <code>Model</code>, <code>Msg</code>, <code>init</code>, <code>update</code>, <code>view</code> and <code>subscriptions</code>. It is the same shape as an app, only the app calls it instead of the platform.</p>
+  <div class="code" data-lang="roc" data-file="Counter.roc"><pre><code>import html.Html exposing [button, div, text]
+import html.Attribute exposing [on_click]
+import pf.Effect
+import pf.Sub
+
+Counter := [].{
+    Model : { count : I64 }
+
+    Msg : [UserClickedIncrement, UserClickedDecrement]
+
+    init : {} -> (Model, List(Effect(Msg)))
+    init = |_| ({ count: 0 }, [])
+
+    update : Model, Msg -> (Model, List(Effect(Msg)))
+    update = |model, msg|
+        match msg {
+            UserClickedIncrement => ({ count: model.count + 1 }, [])
+            UserClickedDecrement => ({ count: model.count - 1 }, [])
+        }
+
+    subscriptions : Model -> List(Sub(Msg))
+    subscriptions = |_model| []
+
+    view : Model -> Html(Msg)
+    view = |model|
+        div([], [
+            button([on_click(UserClickedDecrement)], [text("-")]),
+            text(model.count.to_str()),
+            button([on_click(UserClickedIncrement)], [text("+")]),
+        ])
+}</code></pre></div>
+  <p>A module's type is named after its file, so <code>Counter.roc</code> holds <code>Counter := [].{ ... }</code>, and other modules refer to <code>Counter.Model</code> and <code>Counter.update</code>.</p>
+
+  <h2>Putting pages together</h2>
+  <p>The app's model says which page is showing and holds that page's model. Its messages wrap each page's messages in a tag:</p>
+  <div class="code" data-lang="roc" data-file="app.roc, after examples/pages"><pre><code>Model : [
+    Counter(Counter.Model),
+    Clock(Clock.Model),
+]
+
+Msg : [
+    Counter(Counter.Msg),
+    Clock(Clock.Msg),
+]
+
+update : Model, Msg -> (Model, List(Effect(Msg)))
+update = |model, msg|
+    match (model, msg) {
+        (Counter(c), Counter(m)) => Update.map(Counter.update(c, m), |x| Counter(x), |x| Counter(x))
+        (Clock(c), Clock(m)) => Update.map(Clock.update(c, m), |x| Clock(x), |x| Clock(x))
+
+        # A message for a page that is no longer showing, like a late timer.
+        _ => (model, [])
+    }
+
+render : Model -> Html(Msg)
+render = |model|
+    match model {
+        Counter(c) => Html.map(Counter.view(c), |x| Counter(x))
+        Clock(c) => Html.map(Clock.view(c), |x| Clock(x))
+    }</code></pre></div>
+  <p>Matching on the page and the message together means a message can only reach the page it belongs to. A page has one tag, <code>Counter</code>, in both unions, which Roc allows, so a row names the page and nothing else, and the two wrappers are the same lambda. <code>Update.map</code> is what makes each row one line. <code>Html.map</code> lifts a page's view into the app's messages, <code>Effect.map</code> and <code>Sub.map</code> do it for an effect and a subscription, and <code>Update.map</code> does it for what <code>update</code> returns, the model with its effects. It is a few lines you write once:</p>
+  <div class="code" data-lang="roc" data-file="Update.roc"><pre><code>## What a page's `update` returns, in the app's types: its model in the
+## page's tag, its effects' messages in the page's message tag.
+Update := [].{
+    map : (page, List(Effect(page_msg))), (page -> host), (page_msg -> host_msg) -> (host, List(Effect(host_msg)))
+    map = |(page, effects), to_model, to_msg| (to_model(page), effects.map(|e| e.map(to_msg)))
+}</code></pre></div>
+  <p>The two wrappers are lambdas because a Roc tag is not a function: a bare <code>Counter</code> passed as an argument is the tag with no payload, not a constructor.</p>
+
+  <h2>Two ways to switch pages</h2>
+  <ul>
+    <li><strong>One URL per page</strong> (<code>examples/pages</code>). Links are ordinary links, the browser loads the next page, and the model only holds the page on screen. This is the shape of a server-rendered app.</li>
+    <li><strong>Switching in place</strong> (<code>examples/spa_pages</code>). The app keeps every page's model and changes which one it shows, without a page load.</li>
+  </ul>
+  <p>The page modules are the same in both. Only the app module differs, which makes the two examples easy to compare.</p>
+  <p>Both keep every page in one bundle, which a visitor downloads whole. That is right while the app is small. When it is not, a page can be a bundle of its own, or a server-rendered page with small bundles on it, with the same page modules. Bundles covers that.</p>
+  <div class="note">
+    <span class="note-label">Why pages get their own model</span>
+    <p>A page is the clearest case where its own model, messages and update pay off: pages have real state of their own and rarely share it. Do not take this as a pattern for everything else in an app. The section on picking the simplest API explains why.</p>
+  </div>
+</section>
+
+<section class="topic" data-topic="fullstack" data-part="Growing an app" data-title="Three folders: shared, client, server" data-keywords="fullstack full-stack shared client server folders package import path layout effect sub rule">
+  <p class="eyebrow">Growing an app</p>
+  <h1>Three folders: shared, client, server</h1>
+  <p class="lead">A full-stack Joy app keeps its code in three folders, one for each place it runs. A page that runs in the browser lives at the same path in all three.</p>
+  <p>The Joy repository's <code>examples/fullstack</code> is a small lending library called Shelf, and the rest of this part follows it.</p>
+
+  <div class="folders">
+    <div class="folder">
+      <h3>shared/</h3>
+      <p>Compiled into both the browser and the server.</p>
+      <ul><li>Each page's model, messages, view and endpoints</li><li>Routes, partials, and the components' models and views</li><li>Types and rules both sides use</li></ul>
+    </div>
+    <div class="folder">
+      <h3>client/</h3>
+      <p>Compiled to WebAssembly. Only runs in the browser.</p>
+      <ul><li>Each page's and component's <code>init</code>, <code>update</code> and <code>subscriptions</code></li><li>The bundles, the Joy apps that run them</li><li>Sending requests to the server</li></ul>
+    </div>
+    <div class="folder">
+      <h3>server/</h3>
+      <p>Compiled for the server. Only runs there.</p>
+      <ul><li>Each page's handlers</li><li>The routing table</li><li>SQL, the HTML document around pages, and the views of pages the server alone renders</li></ul>
+    </div>
+  </div>
+
+  <div class="code" data-lang="text"><pre><code>shared/Page/Books/Show.roc    Model, Msg, view, the endpoints
+client/Page/Books/Show.roc    init, update, subscriptions
+server/Page/Books/Show.roc    page!, borrow!, give_back!
+client/main.roc               the bundle: Shelf's one Joy app, with every page in it</code></pre></div>
+  <p>Pages are named by resource and action, like <code>Page/Books/Index.roc</code> for the catalog and <code>Page/Books/New.roc</code> for the form that adds a book. Knowing one half tells you where the other two are.</p>
+
+  <h2>Which folder a function goes in</h2>
+  <p>One rule decides it. If a function's type mentions <code>Effect</code> or <code>Sub</code>, it goes in <code>client/</code>, because those are types of Joy's platform and only a Joy app can import them. Everything else a page needs, its model, its messages, its view and its endpoints, goes in <code>shared/</code>, so the server can render the page from the same code the browser runs. Handlers and SQL go in <code>server/</code>. A page the server alone renders, with no state of its own in the browser, has no client half at all, and its view sits next to its handler in <code>server/</code>. Bundles says which pages those are.</p>
+
+  <h2>The folders keep the sides apart</h2>
+  <ul>
+    <li><code>shared/</code> cannot import Joy's platform or the server's. A view in shared cannot do I/O, so both sides can render it.</li>
+    <li><code>client/</code> cannot reach the database.</li>
+    <li><code>server/</code> cannot use browser effects.</li>
+  </ul>
+  <p>A wrong import does not compile, so the line between the sides is checked for you.</p>
+
+  <h2>Importing by path</h2>
+  <p>A module in a folder is imported by its path from the package root:</p>
+  <div class="code" data-lang="roc"><pre><code>import /Page/Books/Show as PageBooksShow
+import /Book</code></pre></div>
+  <p>A bare <code>import Book</code> inside <code>Page/Books/</code> would look for <code>Page/Books/Book.roc</code>, next to the importing file, which is why nested modules write <code>import /Book</code>. The shared package's <code>main.roc</code> gives each nested module a flat name, like <code>shared.PageBooksShow</code>, for the client and server to use.</p>
+</section>
+
+
+<section class="topic" data-topic="hydration" data-part="Growing an app" data-title="Server rendering and hydration" data-keywords="ssr server rendering hydration model travels json data-joy-flags mount hydrate init encodable dec f64 parser_for">
+  <p class="eyebrow">Growing an app</p>
+  <h1>Server rendering and hydration</h1>
+  <p class="lead">The server sends a finished page, so the visitor sees it at once. Then the client starts and takes over that same markup instead of drawing it again. Joy calls this hydration, and what makes it safe is that the model itself travels.</p>
+
+  <div class="sides">
+    <div class="side">
+      <h3>On the server</h3>
+      <ol>
+        <li>Read what the page needs, for example a book from the database.</li>
+        <li>Build the page's <strong>model</strong> from it: the book, and the page's starting state, an empty form and <code>status: Idle</code>.</li>
+        <li>Render <code>view(model)</code> to HTML.</li>
+        <li>Put that markup inside a root that names the bundle and carries the model as JSON, with <code>Html.bundle</code>.</li>
+      </ol>
+    </div>
+    <div class="side">
+      <h3>In the browser</h3>
+      <ol>
+        <li>The loader, <code>joy.js</code>, finds the root that names the bundle and reads the model off it.</li>
+        <li>It calls <code>mount</code> with it and <code>hydrate: true</code>.</li>
+        <li>The bundle parses the model and hands it to the page's <code>init</code>, which returns it with the effects the page starts with.</li>
+        <li>Its first render matches the server's markup, so Joy claims the existing nodes and attaches events to them.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="code" data-lang="html" data-file="what the server sends, shortened"><pre><code>&lt;script type="module" src="/assets/joy.js"&gt;&lt;/script&gt;
+...
+&lt;div data-joy-bundle="main" data-joy-flags='{"Book":{"book":{"id":7,"title":"Emma", ...},"borrower":{"email":""},"status":"Idle"}}'&gt;
+  ...the book page, as the server rendered it...
+&lt;/div&gt;</code></pre></div>
+
+  <h2>The model is what travels</h2>
+  <p>Hydration only works when both sides draw from the same data, and the simplest way to make that certain is to send the data. The server builds the model once, because it has to render it, and the browser starts from exactly that value. So <code>view</code> lives in <code>shared/</code>, the handler builds the model, and the client's <code>init</code> receives a model instead of building one:</p>
+  <div class="code" data-lang="roc" data-file="server/Page/Books/Show.roc"><pre><code>page! : Ctx.Ctx, I64 => Try(Response, _)
+page! = |ctx, book_id| {
+    book = BooksSql.find!(ctx.db, book_id)?
+
+    model : App.Model
+    model = Book({ book, borrower: Borrower.empty, status: Idle })
+
+    Layout.document(Html.bundle({ id: Bundle.path(Main), flags: Json.to_str(model), view: App.view(model) }))
+}</code></pre></div>
+  <div class="code" data-lang="roc" data-file="client/Page/Books/Show.roc"><pre><code>## Elm's init: the model is the flags. It says what the page starts with, here nothing.
+init : Shared.Model -> (Shared.Model, List(Effect(Shared.Msg)))
+init = |model| (model, [])</code></pre></div>
+  <p>Shelf keeps its pages in one bundle, so what travels is the app's union, <code>Book(...)</code> here, and the bundle's own <code>init</code> parses it and dispatches to the page. A page that is a bundle of its own sends its model bare. Either way there is no <code>Flags</code> type anywhere, and nothing builds a model but the server.</p>
+
+  <h2>Why <code>init</code> takes the model</h2>
+  <p>In a browser-only app <code>init</code> builds the model from the flags and names the effects to start with. In a full-stack app the server has already built the model, so there is nothing left to build. <code>init</code> receives it and says what the page starts with: a request, a timer, or nothing. It returns the model it was given.</p>
+  <p>The type lets it return another, and a page may do that knowingly when the browser knows something the server could not, the current time or the window size, at the price of a first render that differs from the server's. Joy repairs the difference and warns in the console, and the browser tests treat the warning as a failure, because an unintended one means the two sides disagree. The usual way is an effect: the first render stays the server's, and what the browser knows arrives as a message a moment later.</p>
+
+  <h2>The model has to be data</h2>
+  <p>What travels is written with <code>Json.to_str</code> and read back with <code>Json.parse</code>, and the compiler checks the model at those two calls. A model holding a function or a <code>Box</code> does not compile. Fractions are <code>Dec</code>, because an <code>F64</code> can be NaN or infinite, which JSON cannot carry, and <code>Json.to_str</code> refuses an encoder that can fail. A type from a library is fine when the library gives it codecs, which in Roc is two lines inside the type that ask the compiler to derive them:</p>
+  <div class="code" data-lang="roc"><pre><code>Carousel(slide) :: { id : Str, items : List(slide), position : U64, ... }.{
+    parser_for : _
+    encoder_for : _
+}</code></pre></div>
+  <p>Elm models can hold a navigation key or a time zone. These cannot, and that is the one habit to unlearn: what only the browser knows arrives through an effect, after the first render, and is kept in the model from then on.</p>
+
+  <div class="note">
+    <span class="note-label">The model is public</span>
+    <p>Everything in the model is in the page's source, whether the view shows it or not. Leave out what the visitor may not see. Shelf's <code>Book.Detail</code> has no field for who borrowed the book, so neither a book's page nor its model can carry the borrower's email.</p>
+  </div>
+</section>
+
+
+<section class="topic" data-topic="bundles" data-part="Growing an app" data-title="Bundles" data-keywords="bundle island spa per page joy build dev loader joy.js data-joy-bundle Html.bundle Html.document hints preload Bundle.path generated package hydrate mount output dist size server view">
+  <p class="eyebrow">Growing an app</p>
+  <h1>Bundles</h1>
+  <p class="lead">A bundle is a Roc app on the Joy platform: one file in your project, one wasm in the browser. Which bundles a page loads decides how much code a visitor downloads, and Joy lets you choose that page by page.</p>
+
+  <h2>Three sizes, one mechanism</h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Shape</th><th>Bundles on the page</th><th>Root</th><th>Who routes</th></tr></thead>
+    <tbody>
+      <tr><td>One bundle, every page inside</td><td>1</td><td>the whole page</td><td>the client, or the server with one URL per page</td></tr>
+      <tr><td>A bundle per page</td><td>1</td><td>the whole page</td><td>the server, one URL per page</td></tr>
+      <tr><td>Islands</td><td>0 to n</td><td>each island's element</td><td>the server, one URL per page</td></tr>
+    </tbody>
+  </table></div>
+  <p>Joy knows about none of this. <code>./joy build</code> builds every bundle it finds, and the loader mounts every bundle root it finds on a page, so a page with one root around everything and a page with four small roots are the same to it. The choice is a size question. Shelf is small, so it is one bundle with its three pages inside. A shop whose checkout is a long interactive flow would make the checkout a bundle of its own. A product page that is mostly text, with a search box, a cart button and a review form on it, is a page the server renders, with three small bundles on it, each shared with every other page that shows it and cached by the browser.</p>
+
+  <h2>A page lives where it runs</h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Kind of page</th><th>Its files</th></tr></thead>
+    <tbody>
+      <tr><td>Interactive through most of its area: a search, a checkout, a dashboard</td><td><code>shared/Page/X.roc</code> with the model, messages, view and endpoints. <code>client/Page/X.roc</code> with <code>init</code>, <code>update</code> and <code>subscriptions</code>. <code>client/x.roc</code>, the bundle. <code>server/Page/X.roc</code>, the handlers.</td></tr>
+      <tr><td>Mostly text with a few interactive pieces on it: most pages of most sites</td><td><code>server/Page/X.roc</code> with the handler and the view together. Nothing in <code>shared/</code> or <code>client/</code>: the interactive pieces are islands, which are components with bundles of their own.</td></tr>
+      <tr><td>A component, which is what an island is</td><td><code>shared/Component/X.roc</code>, <code>client/Component/X.roc</code>, <code>client/x.roc</code>, and its handlers in <code>server/Component/X.roc</code>.</td></tr>
+    </tbody>
+  </table></div>
+  <p>Partials stay in <code>shared/</code> even when only server-rendered pages use them today, because they are the pieces a bundle page is also built from.</p>
+
+  <h2>Where bundles come from</h2>
+  <p><code>./joy</code> finds bundles by their headers: every <code>.roc</code> file in <code>client/</code>, at any depth, whose header is an app on the Joy platform. Modules, packages and apps on other platforms fall out on the first line. There is no manifest and nothing to register. A bundle's id is its path below <code>client/</code>, without the extension. Its output directory mirrors the id, and its tag follows from it:</p>
+  <div class="code" data-lang="sh"><pre><code>./joy build</code></pre></div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Bundle file</th><th>Output directory</th><th>Id</th><th>Tag</th></tr></thead>
+    <tbody>
+      <tr><td><code>client/catalog.roc</code></td><td><code>dist/client/catalog/</code></td><td><code>catalog</code></td><td><code>Catalog</code></td></tr>
+      <tr><td><code>client/Checkout/cart.roc</code></td><td><code>dist/client/Checkout/cart/</code></td><td><code>Checkout/cart</code></td><td><code>CheckoutCart</code></td></tr>
+      <tr><td><code>client/app.roc</code>, a one-file app</td><td><code>dist/client/app/</code></td><td><code>app</code></td><td><code>App</code></td></tr>
+    </tbody>
+  </table></div>
+  <p>Ids are paths below one fixed folder, so adding or removing a bundle never renames another. Naming a directory or a file, <code>./joy build client/Checkout</code>, only picks what to build, and the ids stay the same. A Joy app outside <code>client/</code>, a test fixture say, is not built, and <code>./joy bundles</code> lists it as found and not built. One loader, <code>joy.js</code>, sits next to the bundles with the runtime built into it, holding the browser code of every feature the bundles call, so a page loads one file. <code>runtime.js</code> is written beside it for anyone who imports <code>mount</code> by hand. A bundle's directory holds only its wasm.</p>
+
+  <h2>A bundle file</h2>
+  <p>Every bundle file is the same dozen lines, and <code>./joy new bundle</code> writes them. What differs is which modules it names. A bundle for a page parses the model the server sent and hands everything to the page's two halves:</p>
+  <div class="code" data-lang="roc" data-file="client/catalog.roc"><pre><code>app [Model, Msg, init, update, render, subscriptions] {
+    pf: platform "https://github.com/niclas-ahden/joy/releases/download/VERSION/HASH.tar.zst",
+    html: "https://github.com/niclas-ahden/joy-html/releases/download/0.17.0/AcmwFzyfbsf5RALWNdX6cXw1cuuDXt96YfcysNqgFqoG.tar.zst",
+    shared: "../shared/main.roc",
+}
+
+import /Page/Books/Index as Client
+import shared.PageBooksIndex
+
+Model : PageBooksIndex.Model
+Msg : PageBooksIndex.Msg
+
+init = |json|
+    match Json.parse(json) {
+        Ok(model) => Client.init(model)
+        Err(e) => crash "Could not read the model: ${Str.inspect(e)}"
+    }
+update = |model, msg| Client.update(model, msg)
+render = |model| PageBooksIndex.view(model)
+subscriptions = |model| Client.subscriptions(model)</code></pre></div>
+  <p>No annotations and no <code>Effect</code>, <code>Sub</code> or <code>Html</code> imports: the platform's <code>requires</code> pins the six types and the rest is inferred. A bundle for a component looks the same with the component's modules in place of the page's. A bundle contains what it imports and nothing else, which is the point: the review form's bundle has the review form, and no page.</p>
+
+  <h2>On the page</h2>
+  <p>A component that is used as an island offers one function, which puts its first markup inside a root that names its bundle and carries its model. The server page's view calls it where the island goes:</p>
+  <div class="code" data-lang="roc" data-file="shared/Component/ReviewForm.roc"><pre><code>## The form on a server-rendered page: its markup in a root with its model.
+island : Model -> Html(msg)
+island = |form| Html.bundle({ id: Bundle.path(ReviewForm), flags: Json.to_str(form), view: ReviewForm.view(form) })</code></pre></div>
+  <div class="code" data-lang="roc" data-file="server/Page/Products/Show.roc"><pre><code>page! = |ctx, product_id| {
+    product = ProductsSql.find!(ctx.db, product_id)?
+    page = { product, review_form: ReviewForm.new({ product_id }) }
+    Layout.document(view(page))
+}
+
+view = |page|
+    Layout.page([
+        product_details(page.product),
+        ReviewForm.island(page.review_form),
+    ])</code></pre></div>
+  <div class="code" data-lang="html"><pre><code>&lt;div data-joy-bundle="review_form" data-joy-flags='{"product_id":41,"text":"","status":"Idle"}'&gt;
+  ...the form, as the server rendered it...
+&lt;/div&gt;</code></pre></div>
+  <p>The loader mounts every such root, loading the wasm whose URL <code>Html.document</code> gave the root, or the one in the <code>&lt;id&gt;/</code> directory next to itself when it has none, and hydrating when the root has children. The same island twice on a page is two roots, two models and one cached wasm. A page that is one bundle has one root around the whole page.</p>
+  <p>The head needs the loader's script tag and a <code>preload</code> per wasm the page uses, in the fetch mode the runtime uses, so the browser fetches the wasm while the HTML still parses. Nobody lists them. <code>Layout.document</code> renders the page with joy-html's <code>Html.document</code>, which finds every root in the body, writes the hints itself and gives each root its wasm's URL, so a page that places an island gets its hint, and a page that stops placing it loses it. It takes the address your app serves <code>client/</code> at and the build's names, which is how the same layout loads Joy's files under hashed names in production and plain names while you work, from the same place. The hints are an optimisation: a page without them is one round trip slower on a first visit, and the loader mounts whatever roots it finds either way.</p>
+  <p>Once a bundle is up, its root carries <code>data-joy-mounted</code> and <code>root.joy</code> is its handle, which is how a browser test waits for a page and how a page's own script reaches a bundle's ports.</p>
+
+  <h2>The generated list of bundles</h2>
+  <p>A page names a bundle with a tag, never a string, so a bundle that does not exist is a compile error. The tags come from <code>./joy build</code>, which writes a package, <code>generated/</code>, from the bundle files it found:</p>
+  <div class="code" data-lang="roc" data-file="generated/Bundle.roc, generated"><pre><code>Bundle : [Catalog, CheckoutCart, ReviewForm, ...]
+
+path : Bundle -> Str     # CheckoutCart -> "Checkout/cart"
+
+all : List(Bundle)</code></pre></div>
+  <p>Your server and your shared package depend on it by path, like any package. It is committed, like a generated schema. <code>./joy build</code> and <code>./joy dev</code> rewrite it, only when it changes, and <code>./joy doctor</code> says when it is stale. It is written when a header in the project names it, and only then: a full-stack app's server names it from the start, and a client-only app gets it the day one of its bundles names a file in <code>assets/</code> or <code>public/</code>. A one-file app whose page is HTML in <code>public/</code> never grows one. Rename a bundle file and the pages that name it stop compiling, which is what you want.</p>
+  <p>It is made from the bundle files alone, before anything compiles, so the server and the bundles build at the same time.</p>
+
+  <h2>Islands share the document</h2>
+  <p>Two bundles on one page share no model. What they share is the DOM, and that decides where an island's edges go. The rule: <strong>a region is one island when its parts need one model.</strong> A dialog and the button that opens it are one island, with the root where the button sits and the <code>&lt;dialog&gt;</code> rendered by the same bundle, which works because a dialog is top layer and its place in the DOM does not matter. A list of bookable showings and the booking dialog their buttons open are one island. A form whose thank-you view embeds another form is one island with the second form embedded as a component.</p>
+  <p>What remains between islands goes through the document, as it already does inside one app: <code>DOM.show_modal("#id")</code> opens a dialog whoever owns it, and a keyboard subscription hears a key whichever island asked. Two islands listening for Escape are fine as long as each checks its own state first. If two islands ever had to share a value, the mechanism would be a document event, and the better answer is nearly always to make them one island.</p>
+  <p>One bundle per island type, not one for all of them. A page then downloads the islands it places and nothing else, each cached across the whole site, and every bundle stays a single component with no wiring inside. Memory is the same either way, one instance per root, which is also why a page should have a few islands and not twenty.</p>
+</section>
+
+
+<section class="topic" data-topic="routes" data-part="Growing an app" data-title="One type for every URL" data-keywords="route routes url parse to_path links tag union">
+  <p class="eyebrow">Growing an app</p>
+  <h1>One type for every URL</h1>
+  <p class="lead">Every URL the app answers is a tag of one type. The server turns a request into a route with <code>parse</code>, and every link and request is built from a route with <code>to_path</code>.</p>
+  <div class="code" data-lang="roc" data-file="shared/Route.roc, shortened"><pre><code>Route := [].{
+    Route : [
+        ## `/`, or `/?q=austen` with a search.
+        Catalog({ query : Str }),
+        ## `/books/7`
+        Book(I64),
+        ## `/books/new`
+        NewBook,
+        ## `/api/books/7/loan`
+        ApiLoan(I64),
+    ]
+
+    parse : Str -> Try(Route.Route, [NotFound])
+
+    to_path : Route.Route -> Str
+    to_path = |route|
+        match route {
+            Catalog({ query }) => with_param("/", "q", query, "")
+            Book(id) => "/books/${id.to_str()}"
+            NewBook => "/books/new"
+            ApiLoan(id) => "/api/books/${id.to_str()}/loan"
+        }
+}
+
+expect Route.parse(Route.to_path(Book(7))) == Ok(Book(7))</code></pre></div>
+  <p>A link is then <code>a([href(Route.to_path(Book(book.id)))], [text(book.title)])</code>, never a string you type by hand. Each URL is spelled in exactly one place, and the <code>expect</code> lines hold <code>parse</code> to be the inverse of <code>to_path</code>.</p>
+  <p>Rename a URL and every link follows. Remove a route and every link to it stops compiling.</p>
+</section>
+
+<section class="topic" data-topic="routing" data-part="Growing an app" data-title="The routing table" data-keywords="routing table server get api raw handlers access level route match">
+  <p class="eyebrow">Growing an app</p>
+  <h1>The routing table</h1>
+  <p class="lead">On the server, one <code>match</code> on the route decides how every request is answered. It is exhaustive, so a new route does not compile until it has a row.</p>
+  <div class="code" data-lang="roc" data-file="server/main.roc, from Shelf"><pre><code>route! : Server.Request, Context, Route.Route => Try(Response, _)
+route! = |req, ctx, route|
+    match route {
+        Catalog({ query }) => Routing.get!(req, || ServerBooksIndex.page!(ctx, query))
+        Book(book_id) => Routing.get!(req, || ServerBooksShow.page!(ctx, book_id))
+        NewBook => Routing.get!(req, || ServerBooksNew.page!())
+
+        ApiLoan(book_id) =>
+            Routing.api!(req, [
+                ApiServer.on(PageBooksShow.borrow(book_id), |borrower| ServerBooksShow.borrow!(ctx, book_id, borrower)),
+                ApiServer.on(PageBooksShow.give_back(book_id), |{}| ServerBooksShow.give_back!(ctx, book_id)),
+            ])
+    }</code></pre></div>
+  <p>Each row answers in one of three ways:</p>
+  <ul>
+    <li><code>get!</code> for anything fetched with GET: a page, a redirect, a file. HEAD is answered like GET.</li>
+    <li><code>api!</code> for a route's JSON endpoints, each with its handler. The endpoints decide which methods the route takes.</li>
+    <li><code>raw!</code> for a route that reads the request itself, like a file upload.</li>
+  </ul>
+  <p>Any other method gets a 405. The rest of <code>main.roc</code> is configuration.</p>
+
+  <h2>Who may use a route</h2>
+  <p>In an app with sign-in, give each row an access level as a tag around its handler:</p>
+  <div class="code" data-lang="roc"><pre><code>Loans => get!(req, ctx, AnyAdmin(|user| ServerLoansIndex.page!(ctx, user)))
+Catalog({ query }) => get!(req, ctx, Public(|| ServerBooksIndex.page!(ctx, query)))</code></pre></div>
+  <p>No row can leave the level out, and a handler gets the signed-in user exactly when the level means there is one.</p>
+  <div class="note">
+    <span class="note-label">Where these come from</span>
+    <p><code>Route</code>, <code>Routing</code>, <code>Api</code>, <code>ApiServer</code> and <code>ApiClient</code> are modules of the Shelf example, not part of Joy itself. They are small. Copy them into your app and change them to fit.</p>
+  </div>
+</section>
+
+<section class="topic" data-topic="endpoints" data-part="Growing an app" data-title="Typed endpoints" data-keywords="api endpoint json errors status server failure apiclient apiserver handler try">
+  <p class="eyebrow">Growing an app</p>
+  <h1>Typed endpoints</h1>
+  <p class="lead">A JSON endpoint is defined once, in the page's shared module, with its request, its answer and its errors as types. The server and the client are both held to it.</p>
+  <div class="code" data-lang="roc" data-file="shared/Page/Books/Show.roc"><pre><code>BorrowError : [BookMissing, AlreadyOnLoan, BadEmail(Str), Server(Api.Failure)]
+
+borrow : I64 -> Api.Endpoint(Book.Borrower, Book.Detail, BorrowError)
+borrow = |book_id|
+    Api.post(
+        Route.to_path(ApiLoan(book_id)),
+        |error|
+            match error {
+                BookMissing => 404
+                AlreadyOnLoan => 409
+                BadEmail(_) => 422
+                Server(failure) => Api.failure_status(failure)
+            },
+    )</code></pre></div>
+
+  <h2>The server's handler</h2>
+  <p>A handler takes the decoded request and returns the answer or one of the endpoint's errors. It reads no body, sets no status and builds no JSON. <code>ApiServer.on</code> does all of that.</p>
+  <div class="code" data-lang="roc" data-file="server/Page/Books/Show.roc"><pre><code>borrow! : Ctx.Ctx, I64, Book.Borrower => Try(Book.Detail, PageBooksShow.BorrowError)
+borrow! = |ctx, book_id, submitted| {
+    borrower = Book.check_borrower(submitted) ? |why| BadEmail(why)
+    _ = BooksSql.find!(ctx.db, book_id)?
+    now = UnixTime.now!().seconds_since_epoch()
+    LoansSql.borrow!(ctx.db, { book_id, email: borrower.email, now })?
+    BooksSql.find!(ctx.db, book_id)
+}</code></pre></div>
+
+  <h2>The client's side</h2>
+  <p>The client sends with the endpoint, and the answer arrives as a message carrying a <code>Try</code>, which the page matches like any other value:</p>
+  <div class="code" data-lang="roc" data-file="client/Page/Books/Show.roc"><pre><code>UserSubmittedBorrow =>
+    ({ ..model, saving: Saving }, [ApiClient.send(PageBooksShow.borrow(model.book.id), borrower, |answer| ServerAnsweredBorrow(answer))])
+
+ServerAnsweredBorrow(Ok(book)) => stored(book)
+ServerAnsweredBorrow(Err(AlreadyOnLoan)) => (failed(model, "This book is already on loan."), [])
+ServerAnsweredBorrow(Err(BadEmail(why))) => (failed(model, why), [])
+ServerAnsweredBorrow(Err(BookMissing)) => (failed(model, "This book is no longer in the catalog."), [])
+ServerAnsweredBorrow(Err(Server(failure))) => (failed(model, Api.failure_text(failure)), [])</code></pre></div>
+  <p>Rename a field on one side and the other stops compiling. Add an error to <code>BorrowError</code> and the page does not compile until it has words for it. A handler cannot return an error the endpoint does not list.</p>
+
+  <h2>Server(Api.Failure)</h2>
+  <p>Every endpoint's errors end with <code>Server(Api.Failure)</code>: anything that went wrong that is not one of its own errors. It covers no answer at all, a timeout, an answer the page cannot read, and on the server side a service that is briefly out, a failing upstream and plain bugs. The page usually has one set of words for all of them and matches a single case when it has better ones.</p>
+  <p>A <code>Server</code> failure loses its details on the way out. The browser gets a status and a short error, never the database's message.</p>
+</section>
+
+<!-- ============================ PART 3 ============================ -->
+
+<section class="topic" data-topic="simplest-api" data-part="Structuring for scale" data-title="Pick the simplest API" data-keywords="reuse api ladder component helper function teach me how to message scaling feldman">
+  <p class="eyebrow">Structuring for scale</p>
+  <h1>Pick the simplest API</h1>
+  <p class="lead">When a piece of UI shows up in more than one place, first ask what its API should look like. Then pick the simplest one that does the job.</p>
+  <p>This is the central idea of Richard Feldman's talk Scaling Elm Apps, and it holds for Joy the same way. There is a ladder of APIs, from simple to heavy. Each step up costs more to use, so climb only as far as you need.</p>
+
+  <ol class="ladder">
+    <li><span class="rung">1</span><div>
+      <h3>A value</h3>
+      <p>Nothing changes from one use to the next.</p>
+      <div class="code" data-lang="roc"><pre><code>subscribe_button : Html(msg)
+subscribe_button = a([class("button"), href(Route.to_path(Subscribe))], [text("Subscribe")])</code></pre></div>
+    </div></li>
+    <li><span class="rung">2</span><div>
+      <h3>A function of data</h3>
+      <p>It shows different things, but does nothing on its own.</p>
+      <div class="code" data-lang="roc"><pre><code>badge : User -> Html(msg)
+badge = |user| span([class("badge")], [text(user.name)])</code></pre></div>
+    </div></li>
+    <li><span class="rung">3</span><div>
+      <h3>Teach it how to message</h3>
+      <p>It reacts to the user, and the caller says which message to send. The caller keeps the state.</p>
+      <div class="code" data-lang="roc"><pre><code>checkbox : { label : Str, checked : Bool, toggled : msg } -> Html(msg)
+checkbox = |{ label: words, checked: is_checked, toggled }|
+    Html.label([], [
+        input([type("checkbox"), checked(is_checked), on_click(toggled)]),
+        text(words),
+    ])</code></pre></div>
+    </div></li>
+    <li><span class="rung">4</span><div>
+      <h3>Its own model, messages and update</h3>
+      <p>It has state of its own and several messages with real logic behind them, and you would otherwise repeat all of that on every page that uses it. This is a component.</p>
+      <div class="code" data-lang="roc"><pre><code>ContactForm.Model, ContactForm.Msg, ContactForm.init, ContactForm.view   # shared
+ContactForm.update                                                   # client</code></pre></div>
+    </div></li>
+  </ol>
+
+  <h2>Why not make everything a component</h2>
+  <p>Coming from React or object-oriented UI, it is tempting to give every piece of the page its own model, messages and update, so they all look alike. Feldman tried that early on and was unhappy with it, and so were many others. It goes wrong in three ways:</p>
+  <ul>
+    <li><strong>It splits the truth.</strong> Give every dropdown its own <code>open : Bool</code> and two of them can be open at once, though the design says only one may be. Store <code>open_dropdown : [NoDropdown, Open(DropdownId)]</code> in the page instead, and the bug cannot be written.</li>
+    <li><strong>It widens every type.</strong> A button that could be <code>Html(msg)</code> now needs an init, a message type, an update branch in every page and a <code>Html.map</code>.</li>
+    <li><strong>It needs parent-child plumbing.</strong> Once state lives in a child, the parent keeps needing pieces of it back, and you write code to pass them up.</li>
+  </ul>
+  <p>Feldman's comparison is a place setting: soup takes a spoon, salad a fork, chicken a fork and a knife. Using every utensil for every dish is not more consistent, only harder. Each piece of UI gets the tool that fits it.</p>
+</section>
+
+<section class="topic" data-topic="partials" data-part="Structuring for scale" data-title="Partials" data-keywords="partial view reuse menu header messages as arguments footer">
+  <p class="eyebrow">Structuring for scale</p>
+  <h1>Partials</h1>
+  <p class="lead">A partial is a piece of view that several pages show: a header, a footer, a list of results. It has no state and no update of its own. It is a function, on the first three steps of the ladder.</p>
+  <div class="code" data-lang="roc" data-file="shared/Partial/Menu.roc, from Shelf"><pre><code>Menu := [].{
+    ## Which entry is the current one.
+    Section : [Catalog, Loans, NewBook, Nowhere]
+
+    view : Section -> Html(msg)
+    view = |current|
+        header([class("top")], [
+            nav([class("links")], [
+                entry("Catalog", Catalog({ query: "" }), current == Catalog),
+                entry("On loan", Loans, current == Loans),
+                entry("Add a book", NewBook, current == NewBook),
+            ]),
+        ])
+}</code></pre></div>
+  <p>The menu is built only from what it is given, and its type, <code>Html(msg)</code>, says it sends nothing. The app's pages show it, and so do the server's 404 and 500 pages, so the whole site has one header.</p>
+
+  <h2>Let the caller name the messages</h2>
+  <p>When a partial has buttons, let the caller pass the messages in. Do not write the page's message tags inside the partial.</p>
+  <div class="code" data-lang="roc"><pre><code># Ties the partial to one page: it only works where Msg has Booking(Opened(_)).
+showings : List(Showing) -> Html(_)
+showings = |list| ul([], list.map(|s| li([], [button([on_click(Booking(Opened(s.id)))], [text(s.time)])])))
+
+# Works for any page, and the type shows what it can send.
+showings : List(Showing), (I64 -> msg) -> Html(msg)
+showings = |list, book| ul([], list.map(|s| li([], [button([on_click(book(s.id))], [text(s.time)])])))</code></pre></div>
+  <p>The second version is the same idea as <code>on_click</code> itself: the element does not know your messages, you tell it which one to send. A partial that names a page's tags looks reusable but only works on that one page.</p>
+</section>
+
+<section class="topic" data-topic="components" data-part="Structuring for scale" data-title="Components" data-keywords="component state embed host page outcome close parent child update init new island">
+  <p class="eyebrow">Structuring for scale</p>
+  <h1>Components</h1>
+  <p class="lead">A component is a piece of UI with its own model, messages and update, used inside pages or placed on them as an island. Think of it as a page without a URL. Use one only at the top step of the ladder.</p>
+
+  <h2>When it pays off</h2>
+  <p>A contact form shown on many pages is the typical case. It has several fields with validation, a submit that sends a request, and success and error states. Without its own <code>Msg</code> and <code>update</code>, every page that shows it would need all those messages and all that logic. With them, each page keeps one field and one message tag, or places it as an island and keeps nothing. Feldman's elm-spa-example does the same for its article feed, used on two pages and with six messages of its own.</p>
+  <p>It does not pay off for something used on one page. Keep that inside the page. It also does not pay off for something with one or two messages and little logic. Give it the messages as arguments instead.</p>
+
+  <h2>Its shape</h2>
+  <p>A component has the same halves as a page, at the same path, plus a bundle when it is an island:</p>
+  <div class="code" data-lang="text"><pre><code>shared/Component/ContactForm.roc    Model, Msg, new, view, island, its endpoint
+client/Component/ContactForm.roc    init, update, subscriptions
+server/Component/ContactForm.roc    the handler of its endpoint
+client/contact_form.roc             its bundle, when it is an island</code></pre></div>
+  <p>What differs between two uses goes into <code>new</code>, like where the form posts, and stays in the model. The server, or the page that embeds the form, builds it with <code>new</code>. Then <code>init</code> says what it starts with and <code>update</code> takes the model and the message and nothing else:</p>
+  <div class="code" data-lang="roc"><pre><code>new : { posts_to : Route.Route } -> Model
+
+init : Model -> (Model, List(Effect(Msg)))
+
+update : Model, Msg -> (Model, List(Effect(Msg)))</code></pre></div>
+
+  <h2>Embedded in a page</h2>
+  <p>A page that is a bundle keeps the component's model in one field and wraps its messages in one tag named after it:</p>
+  <div class="code" data-lang="roc"><pre><code>Model : { listing : Listing, contact_form : ContactForm.Model }
+
+Msg : [UserClickedFavorite, ContactForm(ContactForm.Msg)]</code></pre></div>
+  <p><code>Update.map</code>, from Pages, puts the component's result back into the page the way it puts a page's result back into the app:</p>
+  <div class="code" data-lang="roc"><pre><code># in the page's update:
+ContactForm(form_msg) =>
+    Update.map(ContactForm.update(model.contact_form, form_msg), |form| { ..model, contact_form: form }, |m| ContactForm(m))</code></pre></div>
+
+  <h2>As an island</h2>
+  <p>On a page the server renders, the same component is a bundle of its own. The page keeps nothing of it: the handler builds the form with <code>new</code>, the view places it with the component's <code>island</code>, and <code>client/contact_form.roc</code> runs it in the browser. The component's halves are the same either way, and the choice is the page's: embedded when the page is a bundle, an island when the page is text with the form on it. Bundles has the whole picture, including why a dialog island owns its own button.</p>
+
+  <h2>Telling the page something</h2>
+  <p>Sometimes a page that embeds a component has to react to what happened inside it. Say the form sits in a dialog that the page owns, and the form's "No thanks" button should close it. Let <code>update</code> return what the page needs to know:</p>
+  <div class="code" data-lang="roc"><pre><code>update : Model, Msg -> (Model, List(Effect(Msg)), [Stay, Close])
+
+# in the page:
+ContactForm(form_msg) => {
+    (form, effects, outcome) = ContactForm.update(model.contact_form, form_msg)
+    closing =
+        match outcome {
+            Close => [DOM.close_modal("#contact")]
+            Stay => []
+        }
+    ({ ..model, contact_form: form }, effects.map(|e| e.map(|m| ContactForm(m))).concat(closing))
+}</code></pre></div>
+  <p>Two other ways show up in real code and age badly:</p>
+  <ul>
+    <li><strong>The page matches the component's own messages</strong>, like <code>ContactForm(Closed)</code>. Now the page depends on how the component is built inside, and a renamed message breaks it.</li>
+    <li><strong>Configuration that says one thing while the page does another.</strong> If the form is told in <code>new</code> that it closes its own dialog, but the page catches that message first, the configuration is never read and misleads the next reader.</li>
+  </ul>
+  <p>A returned outcome is part of the component's API, in its type, and the compiler checks every page that uses it. As an island the question does not arise: the island owns its dialog and closes it itself.</p>
+</section>
+
+
+<section class="topic" data-topic="state-types" data-part="Structuring for scale" data-title="State as types" data-keywords="impossible states tag union status booleans single source of truth model data">
+  <p class="eyebrow">Structuring for scale</p>
+  <h1>State as types</h1>
+  <p class="lead">When something can be in one of a few states, write those states as a tag union. Then the states that make no sense cannot be written at all.</p>
+
+  <h2>Booleans that can contradict each other</h2>
+  <div class="code" data-lang="roc"><pre><code># Two flags and an error text that can contradict each other:
+# sending and sent at once, an error after success.
+Model : { sending : Bool, sent : Bool, error : Str }
+
+# Exactly the four states there are.
+Status : [Editing, Sending, Sent, Failed(Str)]
+Model : { status : Status }</code></pre></div>
+  <p>The view now matches on <code>status</code>, and the compiler makes sure every state has a view. Shelf does this for the catalog's search, <code>[Done, Searching, Failed(Str)]</code>, and for a book page's request, <code>[Idle, Saving, Failed(Str)]</code>.</p>
+
+  <h2>No placeholder values</h2>
+  <p>An empty string for "nothing chosen" or a <code>0</code> for "closed" are states the type does not know about. Name them instead:</p>
+  <div class="code" data-lang="roc"><pre><code># A booking dialog with placeholders:
+# showing_id 0 means closed, slot_id "" means nothing picked,
+# and loading, error and slots can all be set at once.
+Booking : { showing_id : I64, slot_id : Str, loading : Bool, error : Str, slots : List(Slot) }
+
+# The same dialog with its states named:
+Booking : [Closed, Open(Dialog)]
+
+Dialog : { showing : Showing, slots : Slots, contact : Contact, status : Status }
+
+Slots : [Loading, LoadFailed(Str), Loaded(List(Slot), Step)]
+
+Step : [Picking, Picked(Slot), Details(Slot)]</code></pre></div>
+  <p>Now a slot can only be picked once the slots have loaded, and the details form can only be filled in for a chosen slot. The view and the update match on these states, and there is no state left for the code to forget.</p>
+
+  <h2>One source of truth</h2>
+  <p>Keep each fact in one place and compute the rest. Whether the form can be sent is a function of its fields, not another field that has to be kept in step:</p>
+  <div class="code" data-lang="roc"><pre><code>is_complete : Contact -> Bool
+is_complete = |c| !Str.is_empty(c.name) and is_valid_email(c.email) and c.consent</code></pre></div>
+  <p>Feldman's talk Making Impossible States Impossible walks through this way of thinking in depth.</p>
+</section>
+
+<section class="topic" data-topic="narrow-types" data-part="Structuring for scale" data-title="Narrow types" data-keywords="narrow types opaque ids keep less in your head arguments annotations">
+  <p class="eyebrow">Structuring for scale</p>
+  <h1>Narrow types</h1>
+  <p class="lead">As an app grows, the way to keep it understandable is to keep less in your head. Functions that take only what they need, and return only what they change, do that for you.</p>
+
+  <h2>Take only what you need</h2>
+  <div class="code" data-lang="roc"><pre><code># Can read and change anything in the model.
+view_header : Model -> Html(Msg)
+
+# Can only show a user and a count, and sends nothing.
+view_header : User, U64 -> Html(msg)</code></pre></div>
+  <p>The narrow version is easier to reuse, and it helps when debugging. When a field of the model goes wrong, any function whose type does not mention that field cannot be the cause, so you can skip it without reading it.</p>
+  <p>The same goes for parts of <code>update</code>. A helper that changes only an address should take and return an address:</p>
+  <div class="code" data-lang="roc"><pre><code>update_address : AddressMsg, Address -> Address</code></pre></div>
+  <p>When a page has many messages for one part of it, group them in a union of their own, like <code>Booking(BookingMsg)</code>, handled by a function that takes only that part's state. That is organisation, not a component: the part stays in the page.</p>
+
+  <h2>Give ids their own types</h2>
+  <p>When a book's id and a loan's id are both <code>I64</code>, nothing stops you from passing one where the other belongs. An opaque type makes that a compile error:</p>
+  <div class="code" data-lang="roc" data-file="BookId.roc"><pre><code>BookId :: { value : I64 }.{
+    from_i64 : I64 -> BookId
+    from_i64 = |n| { value: n }
+
+    to_i64 : BookId -> I64
+    to_i64 = |id| id.value
+}</code></pre></div>
+  <p>Outside the module, a <code>BookId</code> can only be made with <code>from_i64</code>, and code that wants one cannot be handed a <code>LoanId</code> by mistake. The same works for a URL to post to: take a <code>Route.Route</code>, not a <code>Str</code>, and only real URLs of the app can be passed in.</p>
+
+  <h2>Write the types out</h2>
+  <p>Annotate the functions other modules call, with real types rather than <code>_</code> holes. The annotation is the documentation readers see first, and it keeps a mistake inside the module that made it instead of surfacing as a confusing error somewhere else.</p>
+</section>
+
+<section class="topic" data-topic="messages" data-part="Structuring for scale" data-title="Messages are facts" data-keywords="messages naming past tense facts user server wrapper tags msg">
+  <p class="eyebrow">Structuring for scale</p>
+  <h1>Messages are facts</h1>
+  <p class="lead">Name a message for what happened, in the past tense, and say who did it. Leave it to <code>update</code> to decide what that means.</p>
+  <div class="code" data-lang="roc"><pre><code># Commands: says what should happen, which is update's job.
+Msg : [SetEmail(Str), Submit, SaveBook]
+
+# Facts: says what happened.
+Msg : [
+    UserTypedEmail(Str),
+    UserSubmittedBorrow,
+    UserPausedTyping,
+    ServerAnsweredBorrow(Try(Book.Detail, BorrowError)),
+]</code></pre></div>
+  <p>Facts read well in a log of messages, and one fact can mean different things in different states. A <code>UserPressedEscape</code> can close a dialog when one is open and do nothing otherwise, which a <code>CloseDialog</code> command would not let you say.</p>
+  <p>A message that wraps a child's messages is named after the child, the same tag the model uses for it: <code>Counter(Counter.Msg)</code> for a page whose model is <code>Counter(Counter.Model)</code>, <code>ContactForm(ContactForm.Msg)</code> for a component kept in <code>contact_form</code>. Roc lets two unions share a tag, so a page has one name wherever it appears.</p>
+</section>
+
+<section class="topic" data-topic="modules" data-part="Structuring for scale" data-title="Organizing modules" data-keywords="modules files life of a file headings flat structure type folders organization">
+  <p class="eyebrow">Structuring for scale</p>
+  <h1>Organizing modules</h1>
+  <p class="lead">Build each module around a type, keep the tree flat, and use headings inside a module instead of splitting it into many files.</p>
+  <ul>
+    <li><strong>Start in one file.</strong> Evan Czaplicki's talk The Life of a File shows how a module grows: add to it until a type with its own functions clearly emerges, then move that type and its functions into a module of their own.</li>
+    <li><strong>A module is a type and its functions.</strong> <code>Book.roc</code> has the book types and the rules about books. <code>Route.roc</code> has the routes. Name modules after what they are about, not after what kind of code they hold.</li>
+    <li><strong>Long files are fine.</strong> In Roc, as in Elm, the compiler makes it safe to move code around later, so a 600-line module is not a problem by itself. Split when there is a type to split out, not to make files shorter.</li>
+    <li><strong>Use headings.</strong> A comment heading is enough to organise a module, the way a document has sections.</li>
+  </ul>
+  <div class="code" data-lang="roc"><pre><code># Model
+
+# View
+
+# Form
+
+# HTTP</code></pre></div>
+  <ul>
+    <li><strong>Same path in every folder.</strong> In a full-stack app a page's three halves sit at the same path in <code>shared/</code>, <code>client/</code> and <code>server/</code>, so finding one finds them all.</li>
+    <li><strong>A bundle file names modules and holds nothing else.</strong> It sits at the top of <code>client/</code>, or anywhere under it, and delegates every one of its six parts to a page's or a component's modules. Logic in a bundle file is logic no other bundle can reuse.</li>
+    <li><strong>Rules both sides check live in shared.</strong> Shelf's <code>Book.check_borrower</code> runs in the browser before the form is sent, so a mistake shows at once, and again on the server, because a request can come from anywhere. Both say the same words about the same mistake.</li>
+  </ul>
+</section>
+
+<!-- ============================ PART 4 ============================ -->
+
+<section class="topic" data-topic="add-a-page" data-part="Reference" data-title="Adding a page" data-keywords="checklist add page new page steps route routing table bundle island joy new bundle server view">
+  <p class="eyebrow">Reference</p>
+  <h1>Adding a page</h1>
+  <p class="lead">In a full-stack app, adding a page is a fixed list. The compiler checks each step and points you to the next one.</p>
+  <ol>
+    <li>A tag in <code>Route.Route</code>, with its arms in <code>parse</code> and <code>to_path</code>.</li>
+    <li>Decide its shape, from Bundles: a page in an app that is one bundle, like Shelf; a bundle of its own; or a page the server renders with islands on it.</li>
+    <li>For the first two: <code>shared/Page/&lt;Resource&gt;/&lt;Action&gt;.roc</code> with the page's model, messages, view and endpoints, and its line in <code>shared/main.roc</code>. For a server-rendered page: nothing here.</li>
+    <li><code>server/Page/&lt;Resource&gt;/&lt;Action&gt;.roc</code> with the handler that builds the model and sends it, its endpoints' handlers, and its row in the routing table. A server-rendered page keeps its view here too, and builds each island's model with the component's <code>new</code>.</li>
+    <li>For the first two: <code>client/Page/&lt;Resource&gt;/&lt;Action&gt;.roc</code> with <code>init</code>, <code>update</code> and <code>subscriptions</code>. In a one-bundle app, its tags in the app's model and messages and its rows in the app's matches. As its own bundle, <code>./joy new bundle client/&lt;name&gt;.roc</code>. A running <code>./joy dev</code> sees the new file and adds its tag to <code>generated/Bundle.roc</code>, and so does the next <code>./joy build</code>.</li>
+    <li>An entry in the menu if it needs one.</li>
+  </ol>
+  <p>Try it on Shelf: add an author page at <code>Page/Authors/Show.roc</code> and let the compiler walk you through the rest.</p>
+
+  <h2>Questions to ask about a new piece of UI</h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th>If it</th><th>then</th></tr></thead>
+    <tbody>
+      <tr><td>never changes</td><td>make it a value, <code>Html(msg)</code></td></tr>
+      <tr><td>shows data but sends nothing</td><td>make it a function of that data</td></tr>
+      <tr><td>reacts, with the state kept by the page</td><td>pass it the messages to send</td></tr>
+      <tr><td>has state and real logic, and several pages use it</td><td>make it a component</td></tr>
+      <tr><td>is used on one page only</td><td>keep it in that page</td></tr>
+      <tr><td>is a component on a page that is otherwise static</td><td>make it an island, a bundle of its own</td></tr>
+      <tr><td>is a page that is interactive through most of its area</td><td>make the page a bundle of its own</td></tr>
+      <tr><td>is a page that is mostly text</td><td>render it on the server and place islands</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+
+
+<section class="topic" data-topic="joy-cli" data-part="Reference" data-title="The ./joy command" data-keywords="joy cli command build dev hot reload server new bundle use doctor versions release install dist public assets out-dir port host test ci no-input proxy hash cache json names">
+  <p class="eyebrow">Reference</p>
+  <h1>The ./joy command</h1>
+  <p class="lead">Every Joy project has <code>./joy</code> in its root, a small program that knows which release the project is on. It finds the bundles in <code>client/</code> by their headers and never needs to be told which they are.</p>
+
+  <h2>Getting it</h2>
+  <p>Make a folder for your project, and run <code>roc run --opt=speed &lt;the CLI's release URL&gt; init</code> in it. It shows the templates the release ships, a single-page app and a full-stack app with no database, SQLite or Postgres, lets you pick one with the arrow keys, writes it and installs <code>./joy</code>. <code>--template &lt;name&gt;</code> picks one without asking, which is how a script or CI does it. In a directory that already has an app, <code>init</code> only installs <code>./joy</code>, and then checks that your Roc matches the release. <code>./joy</code> is built for your machine, so it goes in <code>.gitignore</code>, and so does <code>.joy/</code>, where it keeps what it makes while you work.</p>
+
+  <h2>While you work: ./joy dev</h2>
+  <p><code>./joy dev</code> builds every bundle and keeps them up to date as you save. It rebuilds only the bundles a change reaches: roc reports which files each build read, so a change in one component rebuilds one bundle and a change in a shared view rebuilds every bundle that uses it. Open pages take a new build without a reload and keep their state, because the new build replays the messages the page has seen so far. A build that fails shows roc's report over the page until one succeeds. Bundles build at <code>--opt=size</code>, like the ones that ship, since roc's dev backend can make a wasm too large for the browser to compile, and a server <code>./joy dev</code> starts builds at <code>--opt=dev</code>, which takes seconds.</p>
+  <p>Its builds go to <code>.joy/dev/</code>, never to <code>dist/</code>. <code>./joy build</code> can run at the same time, from a test run say, and a build made for hot reloading can never be deployed by mistake. <code>.joy/dev/</code> holds only what <code>./joy dev</code> builds, <code>joy.js</code> and the bundles, and an <code>assets.json</code> whose names are all plain and which says where each file lives. <code>public/</code> and <code>assets/</code> are served from where they are, so nothing is copied and a file is served the moment you save it. Development and production differ in the names alone, so a page loads its files from the same addresses in both.</p>
+  <p>Who serves the pages depends on the project:</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>The project</th><th>What <code>./joy dev</code> runs</th></tr></thead>
+    <tbody>
+      <tr><td>has no server</td><td>A server for <code>public/</code>, <code>assets/</code> and the bundles, at <code>http://localhost:8000</code> or the next free port. A path without an extension answers <code>index.html</code>, so an app that changes the URL survives a refresh.</td></tr>
+      <tr><td>has <code>server/main.roc</code></td><td>Your server, serving the files <code>.joy/dev/assets.json</code> lists, rebuilt and restarted when a file it reads changes, and a dev server of its own for the reload events.</td></tr>
+      <tr><td>is started with <code>--server FILE</code>, as often as needed</td><td>Those servers instead of <code>server/main.roc</code>, started and stopped together.</td></tr>
+      <tr><td>is started with <code>--no-server</code></td><td>Only the dev server, for the reload events. Your own server, run on its own, points itself at <code>.joy/dev/assets.json</code>.</td></tr>
+    </tbody>
+  </table></div>
+  <p>A server that <code>./joy dev</code> starts finds <code>.joy/dev/assets.json</code> in <code>JOY_ASSETS_JSON</code> and serves the files it lists from where they are, as it serves the files of <code>dist/assets.json</code> from <code>dist/client/</code> in production. Nothing else in your server knows it is in development.</p>
+  <p>When you change a file in <code>public/</code> or <code>assets/</code>, open pages do what fits how they used it:</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>What changed</th><th>What the page does</th></tr></thead>
+    <tbody>
+      <tr><td>a stylesheet linked from outside any bundle root, usually in the head</td><td>Takes the new styles in place, without a reload, so nothing on the page changes but the styles.</td></tr>
+      <tr><td>anything else the page loaded: an image, a script, a font, a page in <code>public/</code></td><td>Reloads, and replays what you did, as after a server change.</td></tr>
+      <tr><td>a file the page never loaded</td><td>Nothing.</td></tr>
+    </tbody>
+  </table></div>
+  <p>A reload asks for the same plain names again, so whatever serves the files in development must make the browser revalidate with <code>Cache-Control: no-cache</code>, or a reload can show an old copy. basic-webserver's file serving does that by default, and the dev server too. A proxy in front, like Caddy, needs the header added in development, and the console warns when it is missing.</p>
+  <p>When your server changes, open pages reload once the new server answers, and each bundle replays what you did on the new markup, so typed text and open dialogs stay. Requests are not replayed from the recording, because the server that answered them is the one you just edited. A GET that is the same as before is sent again and the replay goes on with the new answer. Any other GET is sent and ends the replay. Anything else, a POST say, ends the replay before it, so nothing is sent twice. The console says where the replay stopped and why.</p>
+  <p>A client-only app whose data comes from a backend of its own, a Rails or a Go API say, can have <code>./joy dev</code> forward its requests, so the app calls the same <code>/api</code> paths while you work as in production, and the backend needs no CORS headers:</p>
+  <div class="code" data-lang="sh"><pre><code>$ ./joy dev --proxy /api=http://localhost:3000</code></pre></div>
+  <p><code>--proxy</code> can be given as often as needed. It forwards whole answers, so streamed answers, server-sent events and WebSockets do not go through it. A setup with several backends puts a reverse proxy like Caddy in front instead.</p>
+  <p><code>--no-hot</code> builds what ships instead, and the page reloads after each rebuild. Reach for it when a bug might live in the difference: a hot build records every message, and its wasm is larger.</p>
+
+  <h2>Ports</h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Setting</th><th>What it is</th></tr></thead>
+    <tbody>
+      <tr><td><code>JOY_PORT</code>, <code>--port</code></td><td>Where <code>./joy dev</code> serves your pages in a project without a server. 8000, or the next free port.</td></tr>
+      <tr><td><code>JOY_DEV_SERVER_PORT</code>, <code>--dev-server-port</code></td><td>The dev server's port when your own server serves the pages. By default the system picks a free one from the range it keeps for that, so it never takes 8000 or a port your servers are likely to use, and <code>./joy</code> asks for the same one next time, so open pages reconnect after a restart. Set it when your server runs on its own and has to know it.</td></tr>
+      <tr><td><code>JOY_HOST</code>, <code>--host</code></td><td>The address to listen on, <code>localhost</code> by default. Set it to open the pages from a phone.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>What ships: ./joy build</h2>
+  <p><strong><code>./joy build [--debug] [--opt=LEVEL] [--out-dir DIR] [--public-dir DIR] [--jobs N] [--no-server] [--server-opt=LEVEL] [--server-target=TARGET] [DIR|BUNDLE...] [-- ROC FLAGS]</code></strong> builds what you deploy. It empties the output directory, <code>dist/</code> unless <code>--out-dir</code> names another, copies <code>public/</code> into its <code>client/</code> as it is and <code>assets/</code> under hashed names, builds the bundles there, writes <code>joy.js</code> with the browser code of exactly the features they call, and prints each bundle with its size. Bundles build at <code>--opt=size</code>, which in Joy's benchmarks makes the smallest wasm without running slower, unless <code>--opt</code> picks another level. Bundles that need different levels go to different output directories, one run each.</p>
+  <p><code>joy.js</code> and every wasm are named by a hash of their content, so a host can cache them for good and a deploy never leaves a page on a stale wasm. In the HTML files it copies from <code>public/</code>, the build rewrites the references to <code>joy.js</code> and to files in <code>assets/</code> to the hashed names, and gives each bundle root on the page its wasm's URL and a preload. Your pages keep saying <code>./joy.js</code>, which is what <code>./joy dev</code> serves.</p>
+  <p>Your own files go in one of two folders, and the folder decides what the build does with them:</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Folder</th><th>For</th><th>In a build</th></tr></thead>
+    <tbody>
+      <tr><td><code>public/</code></td><td>Addresses other people hold, like <code>robots.txt</code>, <code>favicon.ico</code> and a PDF linked from emails, files someone else named or hashed already, and large media.</td><td>Copied byte for byte, at the same path. Never read and never hashed.</td></tr>
+      <tr><td><code>assets/</code></td><td>What your own pages link to and nothing outside does: stylesheets, fonts, images, scripts.</td><td>One copy each in <code>dist/client/</code>, at its own path with a hash of its content in its name, <code>css/site.3f9a1c2b.css</code>. A stylesheet's <code>url()</code> to another file in <code>assets/</code> is rewritten to the hashed name.</td></tr>
+    </tbody>
+  </table></div>
+  <p>Roc code names a file with a string literal that the compiler checks, <code>Asset</code> for <code>assets/</code> and <code>Public</code> for <code>public/</code>, so a misspelled name is a compile error. An asset gets its hashed name in a build and the plain one while you work, so editing a stylesheet rebuilds nothing. Say once where <code>client/</code> is served, the same address while you work and in production, and pass the same one to <code>Html.document</code>:</p>
+  <div class="code" data-lang="roc"><pre><code>client_url : Str
+client_url = "/"
+
+asset : Asset -&gt; Str
+asset = |file| "${client_url}${Asset.path(file)}"
+
+link([rel("stylesheet"), href(asset("css/site.css"))])</code></pre></div>
+  <p>A file in <code>assets/</code> that names other files in a way the build does not rewrite, like a web app manifest's icons, is better served by your server, which names its files through <code>Asset</code>, or goes into <code>public/</code> together with the files it names.</p>
+  <p>A server writes the script tag, the preloads and the roots' wasm URLs itself, so it needs the hashed names too. When the project has <code>server/main.roc</code>, <code>./joy build</code> builds the server at the same time as the bundles, at <code>--opt=speed</code>. Every build writes the hashed names into <code>dist/assets.json</code>, the name of <code>joy.js</code>, of each bundle's wasm and of each file in <code>assets/</code>, as plain JSON that any other tool can read too. The binary goes to <code>dist/server/main</code>, beside <code>dist/client/</code>, which holds everything public. Your server serves <code>dist/client/</code>, never <code>dist/</code>, so its own binary can never be downloaded, and you deploy <code>dist/</code> as one unit. The server reads <code>assets.json</code> when it starts, and the layout passes it to <code>Html.document</code> with the address <code>client/</code> is served at. The server answers a path that matches none of its pages by looking it up there, so the files can sit at the root next to your pages, each with its own cache policy: a year for a hashed name, revalidate for a plain one. While you work it reads the one in <code>.joy/dev/</code>, with plain names. A server that finds no <code>assets.json</code>, or one that misses one of its bundles or was made for other assets, stops at startup and says why, so a deploy that does not belong together fails at once.</p>
+  <ul>
+    <li><code>--server-opt</code> picks another level for the server, and <code>--server-target</code> cross-compiles it, for a Linux server built on a Mac say.</li>
+    <li><code>--no-server</code> builds the bundles alone. A server built some other way, in a Nix derivation of its own say, compiles with the flag <code>./joy build</code> prints and reads the build's <code>assets.json</code> from the file <code>JOY_ASSETS_JSON</code> names.</li>
+    <li>A project has one server that renders its pages. Two servers that serve different bundles, a public site and an internal portal say, are two Joy projects side by side, each with its own <code>client/</code>, <code>server/</code> and <code>./joy</code>, sharing views and types through a package both name by path. Each server can then only name its own bundles, and a typo is a compile error.</li>
+  </ul>
+  <p>A static host publishes <code>dist/client/</code>, and needs to answer <code>index.html</code> for an app's own paths: Netlify with <code>/* /index.html 200</code> in <code>_redirects</code>, while Cloudflare Pages does it for a site without a <code>404.html</code>.</p>
+  <ul>
+    <li><code>--debug</code> writes the whole runtime, readable and with every feature, and asks roc for debug information. It is for chasing a bug.</li>
+    <li><code>--jobs</code> builds that many bundles at a time, 4 by default.</li>
+    <li>A warning in your own files fails the build, and the warnings of downloaded packages are only printed. <code>./joy dev</code> prints warnings and carries on.</li>
+    <li>Anything after <code>--</code> goes to roc as it is, <code>-- --no-cache</code> for instance.</li>
+    <li>The same file in <code>public/</code> and <code>assets/</code>, or a file at a path Joy writes, like <code>joy.js</code>, fails the build instead of one of them silently winning.</li>
+  </ul>
+  <p>The output directory belongs to <code>./joy</code>, which empties it on every build. It refuses a directory outside the project, the project itself or a parent of it, and a directory with files in it that it did not make, so a mistyped <code>--out-dir</code> cannot delete your own files.</p>
+
+  <h2>In tests</h2>
+  <p>Tests run what ships, so a test run is a build into a directory of its own, <code>./joy build --out-dir .joy/test/&lt;run&gt;</code>, with <code>--debug</code> or another <code>--opt</code> for a second pass. Each run gets a new directory, so two passes back to back never mix, and two runs at once never replace each other's files. The directory records how it was built, which a test harness checks before it starts a browser. A run deletes its directory when it ends, and <code>./joy</code> removes the ones left by runs that died. Tests never use the builds of <code>./joy dev</code>. A run that builds a server gets one of its own in its directory's <code>server/</code>, which reads the run's <code>assets.json</code>, and a harness with several passes can build the server once and point it at each pass's <code>assets.json</code> with <code>JOY_ASSETS_JSON</code>.</p>
+
+  <h2>Bundles</h2>
+  <ul>
+    <li><strong><code>./joy new bundle &lt;path&gt;</code></strong> writes a bundle file.</li>
+    <li><strong><code>./joy bundles</code></strong> lists the bundles, their ids and their outputs, and the Joy apps outside <code>client/</code> it does not build. <code>--json</code> prints the same for a backend in another language or a test harness.</li>
+  </ul>
+
+  <h2>Releases</h2>
+  <ul>
+    <li><strong><code>./joy versions</code></strong> lists Joy's releases with their dates and the Roc each recommends, and marks the one the app and <code>./joy</code> are on.</li>
+    <li><strong><code>./joy use &lt;tag&gt;</code></strong> moves the app to a release: it builds that release's CLI first, then rewrites the Joy platform URL and the joy-html URL in every <code>.roc</code> file that names them: the bundles, the server, the shared package, tests and scripts. It also rewrites the packages the project names by path outside it, and says which, so a second project that shares them can follow. If the build fails, the app is left alone.</li>
+    <li><strong><code>./joy doctor</code></strong> shows the app's release, says when a newer one is out, compares your Roc with the recommended one, and reports the bundles it found, their outputs and whether <code>generated/</code> is current. It also lists the files outside <code>client/</code> on another Joy release than the app, and the files on another joy-html release than the rest.</li>
+  </ul>
+  <p><code>./joy</code> always runs the CLI of the app's release, because the two have to agree on how the runtime is put together. When your app is on another release than the one <code>./joy</code> was built for, it builds that release's CLI into <code>.joy/cli/</code>, once, and hands the command over to it. It never asks, since that changes none of your files, and it says so:</p>
+  <div class="code" data-lang="sh"><pre><code>./joy 0.15.0 is running Joy 0.14.0, the release this app is on.</code></pre></div>
+  <p>So an old commit, a teammate with an older <code>./joy</code> and CI all get the CLI the app was written for. Moving the app to another release is always your call, with <code>./joy use</code>. Bundles on different releases share one <code>joy.js</code>, so they have to agree too: the build lists each bundle with its release and prints the <code>./joy use</code> command that moves them all to the newest one.</p>
+  <p><code>./joy build</code> and <code>./joy dev</code> download nothing themselves. Roc fetches the platform and the packages the first time it needs them, from the internet, or from a cache filled beforehand in a Nix build, so the same commands work in both.</p>
+</section>
+
+<section class="topic" data-topic="reading" data-part="Reference" data-title="Further reading" data-keywords="links talks feldman evan elm roc joy examples resources">
+  <p class="eyebrow">Reference</p>
+  <h1>Further reading</h1>
+  <h2>Joy</h2>
+  <ul>
+    <li><a href="./LATESTVERSION/">The API docs</a> for every module the Joy platform exposes, and <a href="./main/">the same for the main branch</a>.</li>
+    <li><a href="https://github.com/niclas-ahden/joy" target="_blank" rel="noopener">The Joy repository</a>, with an <code>examples</code> folder for every feature. <code>examples/fullstack</code> is the Shelf app this guide follows, and its README explains it in more depth.</li>
+    <li><a href="https://github.com/niclas-ahden/joy-html" target="_blank" rel="noopener">joy-html</a>, the Html and Attribute package.</li>
+    <li><a href="https://github.com/niclas-ahden/joy-todomvc" target="_blank" rel="noopener">Joy TodoMVC</a>, a complete front-end app to start from.</li>
+  </ul>
+  <h2>Roc</h2>
+  <ul>
+    <li><a href="https://github.com/roc-lang/roc/blob/main/docs/mini-tutorial-new-compiler.md" target="_blank" rel="noopener">The Roc mini tutorial</a> and <a href="https://github.com/roc-lang/roc/blob/main/test/echo/all_syntax_test.roc" target="_blank" rel="noopener">every piece of syntax in one file</a>.</li>
+  </ul>
+  <h2>Structuring apps in this architecture</h2>
+  <ul>
+    <li>Richard Feldman, <a href="https://www.youtube.com/watch?v=DoA4Txr4GUs" target="_blank" rel="noopener">Scaling Elm Apps</a> (Elm Europe 2017). Narrow types, the ladder of APIs, and why not to build everything as components.</li>
+    <li>Richard Feldman, <a href="https://www.youtube.com/watch?v=RN2_NchjrJQ" target="_blank" rel="noopener">Exploring elm-spa-example</a> (Oslo Elm Day 2019). Module structure, endpoints, dependencies, and the place setting.</li>
+    <li>Richard Feldman, <a href="https://www.youtube.com/watch?v=IcgmSRJHu_8" target="_blank" rel="noopener">Making Impossible States Impossible</a> (elm-conf 2016).</li>
+    <li>Richard Feldman, <a href="https://www.youtube.com/watch?v=x1FU3e0sT1I" target="_blank" rel="noopener">Make Data Structures</a> (Elm Europe 2018). Opaque types and where state belongs.</li>
+    <li>Evan Czaplicki, <a href="https://www.youtube.com/watch?v=XpDsk374LDE" target="_blank" rel="noopener">The Life of a File</a> (Elm Europe 2017).</li>
+    <li><a href="https://guide.elm-lang.org/webapps/structure.html" target="_blank" rel="noopener">The Elm guide on structure</a>, and <a href="https://github.com/rtfeldman/elm-spa-example" target="_blank" rel="noopener">elm-spa-example</a> itself.</li>
+  </ul>
+</section>
+
+</main>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var topics = Array.prototype.slice.call(document.querySelectorAll(".topic"));
+  var toc = document.getElementById("toc");
+  var empty = document.getElementById("toc-empty");
+  var filter = document.getElementById("filter");
+  var shell = document.getElementById("shell");
+  var menuButton = document.getElementById("menu-button");
+  var links = {};
+
+  function tid(topic) { return topic.getAttribute("data-topic"); }
+
+  /* The index, built from the topics so the two never disagree. */
+  var parts = [];
+  topics.forEach(function (topic, i) {
+    var name = topic.getAttribute("data-part");
+    var part = parts.length && parts[parts.length - 1].name === name ? parts[parts.length - 1] : null;
+    if (!part) {
+      part = { name: name, el: document.createElement("div") };
+      part.el.className = "toc-part";
+      var h = document.createElement("h2");
+      h.textContent = name;
+      part.el.appendChild(h);
+      parts.push(part);
+      toc.appendChild(part.el);
+    }
+    var a = document.createElement("a");
+    a.href = "#" + tid(topic);
+    a.setAttribute("data-search", (topic.getAttribute("data-title") + " " + (topic.getAttribute("data-keywords") || "")).toLowerCase());
+    var n = document.createElement("span");
+    n.className = "n";
+    n.textContent = String(i + 1).padStart(2, "0");
+    var t = document.createElement("span");
+    t.textContent = topic.getAttribute("data-title");
+    a.appendChild(n);
+    a.appendChild(t);
+    part.el.appendChild(a);
+    links[tid(topic)] = a;
+  });
+
+  /* Previous and next at the foot of every topic. */
+  topics.forEach(function (topic, i) {
+    var pager = document.createElement("nav");
+    pager.className = "pager";
+    pager.setAttribute("aria-label", "Previous and next topic");
+    if (i > 0) pager.appendChild(pagerLink(topics[i - 1], "Previous", "prev"));
+    if (i < topics.length - 1) pager.appendChild(pagerLink(topics[i + 1], "Next", "next"));
+    topic.appendChild(pager);
+  });
+
+  function pagerLink(topic, dir, cls) {
+    var a = document.createElement("a");
+    a.href = "#" + tid(topic);
+    a.className = cls;
+    var d = document.createElement("span");
+    d.className = "dir";
+    d.textContent = dir;
+    var name = document.createElement("span");
+    name.className = "name";
+    name.textContent = topic.getAttribute("data-title");
+    a.appendChild(d);
+    a.appendChild(name);
+    return a;
+  }
+
+  /* One topic at a time, picked by the address's #anchor. */
+  function show() {
+    var id = (location.hash || "").replace(/^#/, "");
+    var current = topics.filter(function (t) { return tid(t) === id; })[0] || topics[0];
+    topics.forEach(function (topic) { topic.hidden = topic !== current; });
+    Object.keys(links).forEach(function (key) {
+      if (key === tid(current)) links[key].setAttribute("aria-current", "page");
+      else links[key].removeAttribute("aria-current");
+    });
+    document.title = current.getAttribute("data-title") + " · Joy Field Guide";
+    closeMenu();
+    window.scrollTo(0, 0);
+  }
+  window.addEventListener("hashchange", show);
+
+  /* Finding a topic by a word. */
+  filter.addEventListener("input", function () {
+    var q = filter.value.trim().toLowerCase();
+    var any = false;
+    Array.prototype.forEach.call(toc.querySelectorAll(".toc-part"), function (part) {
+      var shown = 0;
+      Array.prototype.forEach.call(part.querySelectorAll("a"), function (a) {
+        var hit = q === "" || a.getAttribute("data-search").indexOf(q) !== -1;
+        a.hidden = !hit;
+        if (hit) shown++;
+      });
+      part.hidden = shown === 0;
+      if (shown) any = true;
+    });
+    empty.hidden = any;
+  });
+  filter.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") {
+      var first = toc.querySelector("a:not([hidden])");
+      if (first) { location.hash = first.getAttribute("href"); filter.blur(); }
+    }
+  });
+
+  /* The phone menu. */
+  function closeMenu() {
+    shell.classList.remove("menu-open");
+    menuButton.setAttribute("aria-expanded", "false");
+  }
+  menuButton.addEventListener("click", function () {
+    var open = !shell.classList.contains("menu-open");
+    shell.classList.toggle("menu-open", open);
+    menuButton.setAttribute("aria-expanded", String(open));
+  });
+
+  /* Left and right arrows page through the topics. */
+  document.addEventListener("keydown", function (e) {
+    if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return;
+    if (e.altKey || e.ctrlKey || e.metaKey) return;
+    var current = topics.filter(function (t) { return !t.hidden; })[0];
+    var i = topics.indexOf(current);
+    if (e.key === "ArrowRight" && i < topics.length - 1) location.hash = tid(topics[i + 1]);
+    if (e.key === "ArrowLeft" && i > 0) location.hash = tid(topics[i - 1]);
+  });
+
+  /* Code: a file label, a copy button, and Roc highlighting. */
+  var ROC = /(#[^\n]*)|("(?:\\.|[^"\\\n])*")|(\\\\[^\n]*)|\b(app|platform|import|exposing|as|match|if|else|expect|return|crash|dbg|for|in|var|where)\b|\b([A-Z][A-Za-z0-9_]*)\b|\b(\d+(?:\.\d+)?)\b|(=>|->|\?\?|\|)/g;
+
+  function esc(s) {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  function highlightRoc(src) {
+    var out = "";
+    var last = 0;
+    var m;
+    ROC.lastIndex = 0;
+    while ((m = ROC.exec(src)) !== null) {
+      out += esc(src.slice(last, m.index));
+      var cls = m[1] ? "c" : m[2] || m[3] ? "s" : m[4] ? "k" : m[5] ? "t" : m[6] ? "u" : "o";
+      out += '<span class="' + cls + '">' + esc(m[0]) + "</span>";
+      last = ROC.lastIndex;
+    }
+    return out + esc(src.slice(last));
+  }
+
+  function highlightComments(src, marker) {
+    return src.split("\n").map(function (line) {
+      var at = line.indexOf(marker);
+      if (at === -1) return esc(line);
+      return esc(line.slice(0, at)) + '<span class="c">' + esc(line.slice(at)) + "</span>";
+    }).join("\n");
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll(".code"), function (block) {
+    var code = block.querySelector("code");
+    var src = code.textContent;
+    var lang = block.getAttribute("data-lang");
+    if (lang === "roc") code.innerHTML = highlightRoc(src);
+    else if (lang === "js") code.innerHTML = highlightComments(src, "//");
+    else if (lang === "sh") code.innerHTML = highlightComments(src, "#");
+
+    var head = document.createElement("div");
+    head.className = "code-head";
+    var file = document.createElement("span");
+    file.className = "file";
+    file.textContent = block.getAttribute("data-file") || (lang === "text" ? "" : lang);
+    var copy = document.createElement("button");
+    copy.type = "button";
+    copy.className = "copy";
+    copy.textContent = "Copy";
+    copy.addEventListener("click", function () {
+      var done = function () {
+        copy.textContent = "Copied";
+        setTimeout(function () { copy.textContent = "Copy"; }, 1500);
+      };
+      var selectIt = function () {
+        var range = document.createRange();
+        range.selectNodeContents(code);
+        var sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+        copy.textContent = "Selected";
+      };
+      try {
+        navigator.clipboard.writeText(src).then(done, selectIt);
+      } catch (err) {
+        selectIt();
+      }
+    });
+    head.appendChild(file);
+    head.appendChild(copy);
+    block.insertBefore(head, block.firstChild);
+  });
+
+  show();
+})();
+</script>
+
+</body></html>
