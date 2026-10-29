@@ -9,7 +9,7 @@
 # The page modules are the same as in examples/spa_pages/, which keeps every
 # page's model alive and switches between them in place. Only this file
 # differs, so the two are easy to compare.
-app [Model, Msg, init, update, render, subscriptions] {
+app [Model, Msg, init, update, view, subscriptions] {
 	pf: platform "../../platform/main.roc",
 	html: "https://github.com/niclas-ahden/joy-html/releases/download/0.17.1/AcmwFzyfbsf5RALWNdX6cXw1cuuDXt96YfcysNqgFqoG.tar.zst",
 }
@@ -92,8 +92,8 @@ subscriptions = |model|
 		Notes(notes) => map_subs(Notes.subscriptions(notes), |m| NotesMsg(m))
 	}
 
-render : Model -> Html(Msg)
-render = |model| {
+view : Model -> Html(Msg)
+view = |model| {
 	page =
 		match model {
 			Counter(counter) => Html.map(Counter.view(counter), |m| CounterMsg(m))

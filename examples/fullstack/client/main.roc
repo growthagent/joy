@@ -6,7 +6,7 @@
 # modules under shared/Page/), because the server renders the same view for
 # the first paint. Each page's messages arrive wrapped in that page's tag of
 # App.Msg, and the page's module under client/Page/ handles them.
-app [Model, Msg, init, update, render, subscriptions] {
+app [Model, Msg, init, update, view, subscriptions] {
 	pf: platform "../../../platform/main.roc",
 	html: "https://github.com/niclas-ahden/joy-html/releases/download/0.17.1/AcmwFzyfbsf5RALWNdX6cXw1cuuDXt96YfcysNqgFqoG.tar.zst",
 	shared: "../shared/main.roc",
@@ -25,8 +25,8 @@ Model : App.Model
 
 Msg : App.Msg
 
-render : Model -> Html(Msg)
-render = |model| App.view(model)
+view : Model -> Html(Msg)
+view = |model| App.view(model)
 
 subscriptions = |_model| []
 

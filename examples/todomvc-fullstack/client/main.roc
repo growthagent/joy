@@ -12,7 +12,7 @@
 # server renders the same view for the first paint and the client hydrates
 # it (see client/www/app.js). What lives here is everything only the client
 # does: booting from the flags, reacting to messages, and talking to the API.
-app [Model, Msg, init, update, render, subscriptions] {
+app [Model, Msg, init, update, view, subscriptions] {
 	pf: platform "../../../platform/main.roc",
 	html: "https://github.com/niclas-ahden/joy-html/releases/download/0.17.1/AcmwFzyfbsf5RALWNdX6cXw1cuuDXt96YfcysNqgFqoG.tar.zst",
 	shared: "../shared/main.roc",
@@ -30,8 +30,8 @@ Model : App.Model
 
 Msg : App.Msg
 
-render : Model -> Html(Msg)
-render = |model| App.view(model)
+view : Model -> Html(Msg)
+view = |model| App.view(model)
 
 # React when Back/Forward steps through the history entries the filter
 # links push.
