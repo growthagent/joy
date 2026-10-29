@@ -51,7 +51,7 @@ jobs:
 
           joy_tag=$(gh release view --repo "$GITHUB_REPOSITORY" --json tagName -q .tagName)
           bundle=$(gh release view --repo "$GITHUB_REPOSITORY" --json assets \
-                     -q '.assets[] | select(.name | endswith(".tar.zst")) | .url')
+                     -q '.assets[] | select(.label != "cli" and (.name | endswith(".tar.zst"))) | .url')
 
           [ -n "$tag" ] || { echo "error: could not resolve the latest roc nightly" >&2; exit 1; }
           [ -n "$bundle" ] || { echo "error: no platform bundle on Joy $joy_tag" >&2; exit 1; }

@@ -81,7 +81,32 @@ view = |model|
 
 ## Getting started
 
-Start with the [Joy TodoMVC](https://www.github.com/niclas-ahden/joy-todomvc) example, and you'll have a complete front-end app setup in no time!
+First install [Roc](https://www.roc-lang.org/). Joy follows Roc's nightly builds, and each release names the nightly it is tested with in its notes. The latest release is tested with [`roc nightly-2026-10-17-5f126ac`](https://github.com/roc-lang/nightlies/releases/tag/nightly-2026-10-17-5f126ac). Another Roc can fail to build Joy's command line with an error that says nothing about versions.
+
+Then make a folder for your project, and run Joy's command line in it:
+
+```sh
+mkdir my-app
+cd my-app
+roc run --opt=speed <cli url> init
+```
+
+Take `<cli url>` from the [latest release](https://github.com/niclas-ahden/joy/releases/latest). The first run builds the command line, which takes about half a minute, and longer while roc downloads its packages. Then `init` asks what kind of app you want, writes it into the folder, and installs `./joy`, the command you use from then on:
+
+```sh
+./joy dev      # work on the app, and the page takes each change as you save
+./joy build    # build what you deploy into dist/
+```
+
+`--opt=speed` makes roc build the command line, which is what `init` copies to `./joy`. Everything after the URL goes to the command line: `--template <name>` after `init` picks a template without asking, and `./joy init --help` lists them. `./joy` is built for your machine, so it stays out of git. After a fresh clone, the same command installs it and leaves the app as it is, and the project's README shows that command.
+
+Until a release carries the command line, run it from a clone of this repository, with the Roc its [development setup](#dependencies) names, and name that clone as the Joy to build against:
+
+```sh
+roc run --opt=speed ~/src/joy/cli/main.roc init --joy-checkout ~/src/joy
+```
+
+For a complete front-end app to read, see [Joy TodoMVC](https://www.github.com/niclas-ahden/joy-todomvc).
 
 ## Performance
 
@@ -114,13 +139,13 @@ $ nix develop # Oh, lord, have mercy! This is great!
 
 If you don't want to use Nix then please install:
 
-* [`roc nightly-2026-10-06-c34079d`](https://github.com/roc-lang/nightlies/releases/tag/nightly-2026-10-06-c34079d)
+* `roc` built from source at the commit `flake.nix` pins in `roc-src.url`. The nightly under [Getting started](#getting-started) is the one the latest release is tested with, and main can need a newer Roc than that.
 * `rustc` (v1.94 + `wasm32-unknown-unknown`)
 * `node` (v22)
 * `watchexec`
 * `playwright` with its browsers, for the browser E2E suite (`npm install -g playwright && playwright install chromium firefox webkit`)
 
-That route is also the Windows one (Nix does not run there). The scripts in the repo root are Roc programs: on Linux and macOS their shebang runs them (`./tests.roc -- --opt=speed`), on Windows hand them to roc (`roc ./tests.roc -- --opt=speed`), which works everywhere.
+That route is also the Windows one (Nix does not run there). The scripts in the repo root are Roc programs: on Linux and macOS their shebang runs them (`./tests.roc --opt=speed`), on Windows hand them to roc (`roc ./tests.roc --opt=speed`), which works everywhere.
 
 ### Running an example
 
