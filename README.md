@@ -24,6 +24,8 @@ Joy also does hydration: serve a page rendered with [`joy-html`](https://www.git
 
 Joy shares the page with whatever else is on it. Browser extensions and embedded widgets put nodes of their own among the app's (a speed control next to a video, a password manager's icon next to a field, a map drawn into an empty container), and Joy leaves them alone: it keeps track of its own nodes itself and never goes by their position in the DOM. That holds while a server-rendered page waits for its app to load, too, with one difference: nodes an extension puts in place of the page's own in that time (a translation for a text, a wrapper around a video) give way to the app's nodes when it starts, so the page never shows both.
 
+A released app's `runtime.js` carries the browser code of exactly the platform functions it calls. Everything past rendering is a browser feature: HTTP, timers, the keyboard, ports, navigation and dialogs, Web Crypto and media. The compiler drops the functions an app never calls, and the build reads which feature operations are left in the app's wasm and adds just their code to Joy's core (see `tools/runtime`), so an app that only plays audio ships no recording code and one that uses no browser features ships the core alone. During development `runtime.js` holds every feature instead, because the wasm changes on nearly every edit and a pruned runtime would have to be rebuilt in step with it. A browser feature is a platform module built on `Effect.call`, `Effect.send` and `Sub.listen`, whose arguments and answers are a few bytes in a fixed order (see `Wire`), plus its JavaScript in `www/features/`, with no change to the host: see Features in `www/runtime.js`.
+
 Have fun and expect breaking changes!
 
 ### Known issues

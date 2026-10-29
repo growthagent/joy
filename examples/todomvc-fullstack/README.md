@@ -23,11 +23,17 @@ $ ./build.roc            # build the client wasm into client/www/
 $ roc server/main.roc    # then run the server
 ```
 
+For deploying, `./build.roc --release` builds the client optimized for size, with only the browser features it calls in `runtime.js`:
+
+```sh
+$ ./build.roc --release
+```
+
 The database lands in `./todos.db` (set `DB_PATH` to change that) and the schema is created on first start. For a container runtime or a load balancer, the server also answers `/health/live` (200 while it runs) and `/health/ready` (200, then 503 once a graceful stop begins), straight from the platform without entering Roc.
 
 Roc is a moving target, so which version you use matters. We test the latest Joy release against the newest nightly every morning and move the name above forward whenever it passes. Each [Joy release](https://github.com/niclas-ahden/joy/releases) also names the nightly it shipped against, under "Roc compiler version".
 
-**Running from the Joy repo instead** (this directory is developed as `examples/todomvc-fullstack` there): the client's header points at the checkout's platform, so build Joy's wasm host once with `./build.roc -- --opt=speed` at the repo root, and use the repo root's dev shell. Everything else is the same.
+**Running from the Joy repo instead** (this directory is developed as `examples/todomvc-fullstack` there): the client's header points at the checkout's platform, so build Joy's wasm host once with `./build.roc --opt=speed` at the repo root, and use the repo root's dev shell. Everything else is the same.
 
 ## How it works
 

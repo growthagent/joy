@@ -3,30 +3,44 @@
 # and put Joy's runtime.js next to it, where the server serves the rest of
 # client/www/ from. Both are gitignored. Run from this directory.
 #
+#   ./build.roc
+#   ./build.roc --release
+#
+# The plain build is for development: its runtime.js holds every browser
+# feature, so it stays good while ./watch-client.roc rebuilds the wasm.
+# `--release` builds what you deploy, optimized for size and with a
+# runtime.js holding only the features the client calls.
+#
 # The server is not built here: `roc server/main.roc` compiles it on start
 # (see watch-server.roc).
 app [main!] {
-	pf: platform "https://github.com/niclas-ahden/basic-cli/releases/download/0.28.0/AP9SGT1yrhCKcFxKcoA5tBkNCM6ibBjBxcQGMTb6krev.tar.zst",
+	pf: platform "https://github.com/niclas-ahden/basic-cli/releases/download/0.30.0/6XAUy48Jp34GANurMrMf74DtF7NdpkhnqFLHE4gHNzJy.tar.zst",
+	joy_runtime: "../../tools/runtime/main.roc",
 }
 
 import pf.Cmd
 import pf.Env
+import pf.OsStr
 import pf.Path
 import pf.Stderr
+import pf.System
+import joy_runtime.JoyRuntime
 import Script exposing [fail!]
 
 out_path = "client/www/app.wasm"
 
-main! = |_args| {
+main! = |args| {
+	release = args.any(|arg| OsStr.to_str_try(arg) == Ok("--release"))
+
 	check_wasm_host!()?
 
 	# roc can exit 0 without writing anything, so drop the wasm up front and
 	# check that it came back. Something stale mustn't reach the browser.
 	drop!(out_path)?
 
-	build_app!()?
+	build_app!(release)?
 
-	copy_runtime!()
+	write_runtime!(release)
 }
 
 # Handle building against a local clone of the Joy repo. Not needed
@@ -54,31 +68,43 @@ drop! = |file| {
 	}
 }
 
-# The page's runtime.js is Joy's client runtime, shipped beside the platform
-# so it always matches it. A bundle platform (by URL) sits in roc's package
-# cache after the build, so the runtime is copied out of there. A path
-# platform is a Joy checkout, where the runtime lives in the checkout's
-# www/. The copy lands in client/www/, served like everything else there.
-copy_runtime! = || {
+# The page's runtime.js is Joy's client runtime with the code of every
+# browser feature, or for a release only of those the client calls (see
+# Joy's tools/runtime), made from the www/ that ships beside the platform so
+# it always matches it. A bundle platform (by URL, https or the localhost
+# http Joy's release gate serves drafts over) sits in roc's package cache
+# after the build, so its www/ is read there. A path platform is a Joy
+# checkout, with www/ in the checkout. It lands in client/www/, served like
+# everything else there.
+write_runtime! = |release| {
 	url = platform_url!()?
-	src = if url.starts_with("https://") or url.starts_with("http://") {
+	joy_www = if url.starts_with("https://") or url.starts_with("http://") {
 		hash = match url.split_last("/") {
 			Ok(at_slash) => at_slash.after.drop_suffix(".tar.zst")
 			Err(_) => url.drop_suffix(".tar.zst")
 		}
-		"${package_cache!()}/${hash}/www/runtime.js"
+		"${package_cache!()}/${hash}/www"
 	} else {
 		# The header's path is relative to client/main.roc, this script runs
 		# one directory up.
-		"client/${url.drop_suffix("platform/main.roc")}www/runtime.js"
+		"client/${url.drop_suffix("platform/main.roc")}www"
 	}
-	if Path.utf8(src).is_file!()? {
-		match Path.utf8(src).copy!(Path.utf8("client/www/runtime.js")) {
-			Ok({}) => Ok({})
-			Err(e) => fail!("could not copy ${src} to client/www/runtime.js: ${Str.inspect(e)}")
-		}
+	core = match Path.utf8("${joy_www}/runtime.js").read_utf8!() {
+		Ok(js) => js
+		Err(_) => return fail!("no runtime.js in ${joy_www}. Is client/main.roc's platform a Joy bundle or checkout?")
+	}
+	features = (Path.utf8("${joy_www}/features").list!() ?? [])
+		.keep_if(|entry| Path.display(entry).ends_with(".js"))
+		.map_try!(|entry| entry.read_utf8!())?
+	runtime = if release {
+		wasm = Path.utf8(out_path).read_bytes!()?
+		JoyRuntime.generate({ core, features, wasm })
 	} else {
-		fail!("no runtime.js at ${src}. Is client/main.roc's platform a Joy bundle or checkout?")
+		JoyRuntime.full({ core, features })
+	}
+	match runtime {
+		Ok(js) => Path.utf8("client/www/runtime.js").write_utf8!(js)
+		Err(problem) => fail!("could not make client/www/runtime.js: ${Str.inspect(problem)}")
 	}
 }
 
@@ -116,10 +142,11 @@ platform_url! = || {
 # roc exits 0 even when it reports errors, so the summary line decides, not
 # the exit code. Any warning, an error, or a module that never got written
 # fails the build.
-build_app! = || {
+build_app! = |release| {
+	opt = if release ["--opt=size"] else []
 	output = capture!(
-		Cmd.new_str("roc")
-			.args_str(["build", "--target=wasm32", "--no-cache", "--output=${out_path}", "client/main.roc"]),
+		Cmd.new(OsStr.from_str("roc"))
+			.args(["build", "--target=wasm32", "--no-cache", "--output=${out_path}"].concat(opt).append("client/main.roc").map(OsStr.from_str)),
 	)?
 	clean = match output.split_on("\n").keep_oks(summary_counts).last() {
 		Ok(counts) => counts.errors == 0 and counts.warnings == 0
