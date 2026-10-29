@@ -1,4 +1,5 @@
 import pf.Cmd
+import pf.OsStr
 import pf.Stderr
 
 ## Helpers shared by the executable scripts in the repo root: build.roc,
@@ -9,9 +10,14 @@ Util :: [].{
 	## fails.
 	run! : Str, List(Str) => Try({}, [Exit(I32)])
 	run! = |program, args| {
-		match Cmd.new_str(program).args_str(args).exec_exit_code!() {
-			Ok(0) => Ok({})
-			Ok(code) => Err(Exit(code))
+		match Cmd.new(OsStr.from_str(program)).args(args.map(OsStr.from_str)).inherit_stdio().run!() {
+			Ok(output) =>
+				match output.status {
+					Exited(0) => Ok({})
+					Exited(code) => Err(Exit(code))
+					Signaled(_) => Err(Exit(1))
+				}
+
 			Err(_) => Err(Exit(1))
 		}
 	}

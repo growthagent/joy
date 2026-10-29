@@ -14,8 +14,8 @@
 # Set `E2E_PORT` to change the first worker's port (default 8927,
 # and worker N listens on E2E_PORT + N).
 app [main!] {
-	pf: platform "https://github.com/niclas-ahden/basic-cli/releases/download/0.28.0/AP9SGT1yrhCKcFxKcoA5tBkNCM6ibBjBxcQGMTb6krev.tar.zst",
-	spec: "https://github.com/niclas-ahden/roc-spec/releases/download/0.6.1/55UFmX5Ye5dNxWYzbzxQfsE54KTNwaoHNmYan163HbzB.tar.zst",
+	pf: platform "https://github.com/niclas-ahden/basic-cli/releases/download/0.30.0/6XAUy48Jp34GANurMrMf74DtF7NdpkhnqFLHE4gHNzJy.tar.zst",
+	spec: "https://github.com/niclas-ahden/roc-spec/releases/download/0.7.0/BGjQKbG9U3V8cH6mRbypUAFVqFoVEu6n9bsA3QmFL1f4.tar.zst",
 	http: "https://github.com/roc-lang/http/releases/download/2.0.0/6ZUwqYhCS8PU9Mo6MF7oV82ET2o7KYb57CLKDq4cq4sS.tar.zst",
 }
 
@@ -48,7 +48,9 @@ main! = |_args| {
 		fail!("playwright not found, run inside the nix devShell")?
 	}
 
-	run!("roc", ["./build.roc"])?
+	# WORKAROUND: roc-lang/roc#12693 and #12701. A shared roc cache can crash
+	# this compile. Drop `--no-cache` when fixed.
+	run!("roc", ["--no-cache", "./build.roc"])?
 
 	base_port = U64.from_str(Env.var_str!("E2E_PORT") ?? "8927") ? |_| InvalidE2ePort
 
@@ -81,23 +83,23 @@ run_suite! = |db_dir, base_port| {
 
 	results = Spec.run!(
 		{
-			spawn_test!: |file, envs|
-				Cmd.new(OsStr.utf8("roc"))
-					.args_str(["--opt=speed", file])
-					.envs_str(envs)
-					.stdout(Capture)
-					.stderr(Capture)
-					.spawn_leashed!(),
-			try_wait!: Cmd.Child.try_wait!,
-			kill!: Cmd.Child.kill!,
+			new: Cmd.new,
+			os_str: OsStr.from_str,
+			# Leashed, so a test killed on timeout takes its browser with it.
+			spawn!: Cmd.Command.spawn_leashed!,
+			poll!: Cmd.Child.poll!,
 			wait!: Cmd.Child.wait!,
-			list_dir!: |dir| Path.utf8(dir).list!().map_ok(|entries| entries.map(Path.display)),
+			kill!: Cmd.Child.kill!,
+			close!: Cmd.Child.close!,
+			path: Path.utf8,
+			list!: Path.list!,
 			print!: Stdout.line!,
-			utc_now!: Utc.now!,
-			sleep_millis!: Sleep.millis!,
+			now!: Utc.now!,
+			sleep!: Sleep.millis!,
 		},
 		"e2e",
 		{
+			test_command: ["roc", "--opt=speed"],
 			max_workers: workers,
 			worker_envs: |index| [("E2E_URL", url(base_port + index))],
 			before_each!: |index| reset!(base_port + index),
@@ -128,11 +130,11 @@ url = |port| "http://127.0.0.1:${port.to_str()}"
 
 spawn_server! = |db_dir, port| {
 	db = Path.display(Path.join(db_dir, "library-${port.to_str()}.db"))
-	Cmd.new_str("roc")
-		.args_str(["server/main.roc"])
-		.env_str("DB_PATH", db)
-		.env_str("PORT", port.to_str())
-		.env_str("TEST_ROUTES", "1")
+	Cmd.new(OsStr.from_str("roc"))
+		.args([OsStr.from_str("server/main.roc")])
+		.env(OsStr.from_str("DB_PATH"), OsStr.from_str(db))
+		.env(OsStr.from_str("PORT"), OsStr.from_str(port.to_str()))
+		.env(OsStr.from_str("TEST_ROUTES"), OsStr.from_str("1"))
 		.spawn_leashed!()
 		.map_err(|e| ServerSpawnFailed(e))
 }
@@ -140,17 +142,20 @@ spawn_server! = |db_dir, port| {
 # The server is up once its readiness check says so, the same signal a
 # container runtime or a load balancer waits for.
 answers! = |port|
-	match Http.send!(Request.from_method(GET).with_uri("${url(port)}/health/ready")) {
+	match Http.send!(Request.from_method(GET).with_uri("${url(port)}/health/ready"), {}) {
 		Ok(response) => Response.status(response) == 200
 		Err(_) => Bool.False
 	}
 
 reset! = |port| {
-	response = Http.send!(Request.from_method(POST).with_uri("${url(port)}/test/reset"))?
+	response = Http.send!(Request.from_method(POST).with_uri("${url(port)}/test/reset"), {})?
 	status = Response.status(response)
 	if status == 200 Ok({}) else Err(ResetFailed(status))
 }
 
 probe_playwright! : Str => Bool
 probe_playwright! = |program|
-	Cmd.new_str(program).args_str(["--version"]).exec_output_bytes!().is_ok()
+	match Cmd.new(OsStr.from_str(program)).args([OsStr.from_str("--version")]).run!() {
+		Ok(output) => output.status == Exited(0)
+		Err(_) => Bool.False
+	}

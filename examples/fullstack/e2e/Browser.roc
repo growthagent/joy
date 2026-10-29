@@ -26,7 +26,7 @@ poll! = |page, attempts_left| {
 	} else if attempts_left == 0 {
 		Err(AppNeverBooted)
 	} else {
-		Sleep.millis!(100)
+		Sleep.millis!(100)?
 		poll!(page, attempts_left - 1)
 	}
 }

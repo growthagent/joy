@@ -40,7 +40,7 @@ check_wasm_host! = || {
 		if Path.utf8(host).is_file!()? {
 			Ok({})
 		} else {
-			fail!("Joy's wasm host is not built (no ${host}). Run ./build.roc -- --opt=speed at the Joy repo root once, then come back here.")
+			fail!("Joy's wasm host is not built (no ${host}). Run ./build.roc --opt=speed at the Joy repo root once, then come back here.")
 		}
 	}
 }
@@ -88,8 +88,8 @@ package_cache! = || {
 	base = match Env.var_str!("XDG_CACHE_HOME") {
 		Ok(xdg) => xdg
 		Err(_) =>
-			match (Env.platform!().os, Env.var_str!("LOCALAPPDATA")) {
-				(WINDOWS, Ok(local)) => local
+			match (System.target!().os(), Env.var_str!("LOCALAPPDATA")) {
+				(Windows(_), Ok(local)) => local
 				_ => {
 					home = Env.var_str!("HOME") ?? ""
 					"${home}/.cache"
@@ -136,6 +136,9 @@ build_app! = || {
 
 # Read the counts out of a line like "0 errors and 1 warning found in 704ms".
 # Lines that are not a summary fail to parse and are skipped by the caller.
+# WORKAROUND: roc-lang/roc#12707. Without this annotation roc can panic with
+# `guarded list invalidated` while building. Drop the annotation when fixed.
+summary_counts : Str -> Try({ errors : U64, warnings : U64 }, [NotFound])
 summary_counts = |line| {
 	at_error = line.split_first(" error")?
 	at_and = at_error.after.split_first(" and ")?
@@ -148,11 +151,8 @@ summary_counts = |line| {
 # roc spreads its diagnostics across stdout and stderr, and a run that reports
 # errors can exit 0, so gather both streams whatever the exit code was.
 capture! = |cmd| {
-	match cmd.exec_output_bytes!() {
-		Ok(streams) => Ok(Str.from_utf8_lossy(streams.stdout_bytes.concat(streams.stderr_bytes)))
-		Err(NonZeroExitCodeB(streams)) =>
-			Ok(Str.from_utf8_lossy(streams.stdout_bytes.concat(streams.stderr_bytes)))
-
-		Err(FailedToGetExitCodeB(_)) => fail!("could not run ${Cmd.to_str(cmd)}")
+	match cmd.run!() {
+		Ok(output) => Ok(Str.from_utf8_lossy(output.stdout_bytes.concat(output.stderr_bytes)))
+		Err(_) => fail!("could not run ${cmd.to_str()}")
 	}
 }

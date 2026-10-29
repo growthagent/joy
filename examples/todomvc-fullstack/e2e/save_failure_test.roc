@@ -17,15 +17,17 @@
 # starts a server per worker against its own scratch database and points
 # E2E_URL here.
 app [main!] {
-	pf: platform "https://github.com/niclas-ahden/basic-cli/releases/download/0.28.0/AP9SGT1yrhCKcFxKcoA5tBkNCM6ibBjBxcQGMTb6krev.tar.zst",
-	playwright: "https://github.com/niclas-ahden/roc-playwright/releases/download/0.11.1/GJz6pEptEAmK2FqGnzJQUhF9cymdiV3vwETDdCDevAZ1.tar.zst",
-	spec: "https://github.com/niclas-ahden/roc-spec/releases/download/0.6.1/55UFmX5Ye5dNxWYzbzxQfsE54KTNwaoHNmYan163HbzB.tar.zst",
+	pf: platform "https://github.com/niclas-ahden/basic-cli/releases/download/0.30.0/6XAUy48Jp34GANurMrMf74DtF7NdpkhnqFLHE4gHNzJy.tar.zst",
+	playwright: "https://github.com/niclas-ahden/roc-playwright/releases/download/0.13.1/AWahhV9oKjtqpZNTG5mUK5i86Fy1Lwssrg6yeDG52Bvy.tar.zst",
+	spec: "https://github.com/niclas-ahden/roc-spec/releases/download/0.7.0/BGjQKbG9U3V8cH6mRbypUAFVqFoVEu6n9bsA3QmFL1f4.tar.zst",
 	http: "https://github.com/roc-lang/http/releases/download/2.0.0/6ZUwqYhCS8PU9Mo6MF7oV82ET2o7KYb57CLKDq4cq4sS.tar.zst",
 }
 
 import http.Request
 import http.Response
 import pf.Cmd
+import pf.OsStr
+import pf.Duration
 import pf.Env
 import pf.Http
 import playwright.Playwright exposing [assert!]
@@ -36,7 +38,7 @@ main! = |_args| {
 	post_json!(base, "/todos", { title: "Survivor" })?
 
 	{ browser, page } = Playwright.launch_page_with!(
-		{ new: Cmd.new_str, spawn!: Cmd.spawn_leashed! },
+		{ new: Cmd.new, os_str: OsStr.from_str, spawn!: Cmd.Command.spawn_leashed!, millis: Duration.millis },
 		{ timeout: TimeoutMilliseconds(10000) },
 	)?
 	page.navigate!("${base}/")?
@@ -166,7 +168,7 @@ post_json! = |base, api_path, value| {
 		.with_uri("${base}${api_path}")
 		.add_header("Content-Type", "application/json")
 		.with_body(Str.to_utf8(Json.to_str(value)))
-	resp = Http.send!(request)?
+	resp = Http.send!(request, {})?
 	if Response.status(resp) == 200 {
 		Ok({})
 	} else {

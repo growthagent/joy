@@ -16,7 +16,7 @@ The app is now at [`http://localhost:8000`](http://localhost:8000) (set `PORT` t
 
 The database lands in `./library.db` (set `DB_PATH` to change that). The schema is created on first start, and an empty catalog gets eight seed books.
 
-This directory is developed inside the Joy repo, and the client's header points at the checkout's platform. Build Joy's wasm host once with `./build.roc -- --opt=speed` at the repo root, and use the compiler that `nix develop` hands you (the one `flake.nix` pins). Without Nix, put Roc on your PATH (we recommend [`roc nightly-2026-10-06-c34079d`](https://github.com/roc-lang/nightlies/releases/tag/nightly-2026-10-06-c34079d)).
+This directory is developed inside the Joy repo, and the client's header points at the checkout's platform. Build Joy's wasm host once with `./build.roc --opt=speed` at the repo root, and use the compiler that `nix develop` hands you (the one `flake.nix` pins). Without Nix, put Roc on your PATH (we recommend [`roc nightly-2026-10-06-c34079d`](https://github.com/roc-lang/nightlies/releases/tag/nightly-2026-10-06-c34079d)).
 
 ## How it is put together
 

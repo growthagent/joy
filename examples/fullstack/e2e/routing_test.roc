@@ -7,8 +7,8 @@
 # Run via ./tests.roc, which starts a server with the seed books and points
 # E2E_URL here. The books are put back before every test.
 app [main!] {
-	pf: platform "https://github.com/niclas-ahden/basic-cli/releases/download/0.28.0/AP9SGT1yrhCKcFxKcoA5tBkNCM6ibBjBxcQGMTb6krev.tar.zst",
-	spec: "https://github.com/niclas-ahden/roc-spec/releases/download/0.6.1/55UFmX5Ye5dNxWYzbzxQfsE54KTNwaoHNmYan163HbzB.tar.zst",
+	pf: platform "https://github.com/niclas-ahden/basic-cli/releases/download/0.30.0/6XAUy48Jp34GANurMrMf74DtF7NdpkhnqFLHE4gHNzJy.tar.zst",
+	spec: "https://github.com/niclas-ahden/roc-spec/releases/download/0.7.0/BGjQKbG9U3V8cH6mRbypUAFVqFoVEu6n9bsA3QmFL1f4.tar.zst",
 	http: "https://github.com/roc-lang/http/releases/download/2.0.0/6ZUwqYhCS8PU9Mo6MF7oV82ET2o7KYb57CLKDq4cq4sS.tar.zst",
 }
 
@@ -144,7 +144,7 @@ send! = |base, method, path, headers, request_body| {
 		Request.from_method(method).with_uri("${base}${path}"),
 		|req, (name, value)| req.add_header(name, value),
 	)
-	Http.send!(request.with_body(request_body.to_utf8()))
+	Http.send!(request.with_body(request_body.to_utf8()), {})
 }
 
 body = |response| Str.from_utf8_lossy(Response.body(response))

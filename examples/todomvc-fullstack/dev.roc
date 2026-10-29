@@ -6,19 +6,22 @@
 # Prefer separate terminals? ./watch-client.roc and ./watch-server.roc are
 # the same two halves.
 app [main!] {
-	pf: platform "https://github.com/niclas-ahden/basic-cli/releases/download/0.28.0/AP9SGT1yrhCKcFxKcoA5tBkNCM6ibBjBxcQGMTb6krev.tar.zst",
+	pf: platform "https://github.com/niclas-ahden/basic-cli/releases/download/0.30.0/6XAUy48Jp34GANurMrMf74DtF7NdpkhnqFLHE4gHNzJy.tar.zst",
 }
 
 import pf.Cmd
+import pf.OsStr
 import Util exposing [run!]
 
 main! = |_args| {
-	run!("roc", ["./build.roc"])?
+	# WORKAROUND: roc-lang/roc#12693 and #12701. A shared roc cache can crash
+	# this compile. Drop `--no-cache` when fixed.
+	run!("roc", ["--no-cache", "./build.roc"])?
 
 	# Leashed, so the watcher dies with this script. The handle is held until
 	# the server stops, because releasing it kills the child.
-	watcher = Cmd.new_str("roc")
-		.args_str(["build", "--target=wasm32", "--watch", "--output=client/www/app.wasm", "client/main.roc"])
+	watcher = Cmd.new(OsStr.from_str("roc"))
+		.args(["build", "--target=wasm32", "--watch", "--output=client/www/app.wasm", "client/main.roc"].map(OsStr.from_str))
 		.spawn_leashed!() ? |err| WatcherSpawnFailed(err)
 
 	served = run!("roc", ["--watch", "server/main.roc"])

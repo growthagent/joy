@@ -26,9 +26,9 @@
 # 0.0.0.0 in a container) and `PORT` the port (default 8000). The database
 # file and schema are created on first start.
 app [Context, program] {
-	pf: platform "https://github.com/niclas-ahden/basic-webserver/releases/download/0.18.0/DuwGgLMnPKEVKXR5KuwtZRAtgap8TSp4GTnFf8ANHtXB.tar.zst",
+	pf: platform "https://github.com/niclas-ahden/basic-webserver/releases/download/0.20.0/8gawVMwxgrwBefBfG9kAMVeJQ68b8kd1tTAAsX1xUtTe.tar.zst",
 	http: "https://github.com/roc-lang/http/releases/download/2.0.0/6ZUwqYhCS8PU9Mo6MF7oV82ET2o7KYb57CLKDq4cq4sS.tar.zst",
-	html: "https://github.com/niclas-ahden/joy-html/releases/download/0.17.0/AcmwFzyfbsf5RALWNdX6cXw1cuuDXt96YfcysNqgFqoG.tar.zst",
+	html: "https://github.com/niclas-ahden/joy-html/releases/download/0.17.1/AcmwFzyfbsf5RALWNdX6cXw1cuuDXt96YfcysNqgFqoG.tar.zst",
 	shared: "../shared/main.roc",
 }
 
@@ -88,15 +88,13 @@ init! = || {
 	# starts listening. A graceful stop turns it to NotReady by itself.
 	readiness = Server.Readiness.create!(Ready) ? |err| CouldNotCreateReadiness(err)
 
-	config =
-		Server.default_config
-			.with_listen({ host, port })
-			.with_file_roots([www])
-			.with_native_routes({
-				files: [Server.static_mount({ at: "/assets", files: www })],
-				liveness: [Server.liveness_route("/health/live")],
-				readiness: [Server.readiness_route({ at: "/health/ready", readiness })],
-			})
+	listening = Server.with_listen(Server.default_config, { host, port })
+	serving = Server.with_file_roots(listening, [www])
+	config = Server.with_native_routes(serving, {
+		files: [Server.static_mount({ at: "/assets", files: www })],
+		liveness: [Server.liveness_route("/health/live")],
+		readiness: [Server.readiness_route({ at: "/health/ready", readiness })],
+	})
 
 	Ok({ config, context: { db, test_routes, readiness } })
 }

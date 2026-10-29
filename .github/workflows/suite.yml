@@ -142,7 +142,7 @@ jobs:
           playwright: ${{ inputs.e2e == 'all' || (inputs.e2e == 'linux' && startsWith(matrix.os, 'ubuntu')) }}
 
       - name: Build and test
-        run: ${{ steps.setup.outputs.prefix }} roc ./tests.roc -- --opt=${{ matrix.opt }}
+        run: ${{ steps.setup.outputs.prefix }} roc ./tests.roc --opt=${{ matrix.opt }}
 
       # What only a real browser can prove: event dispatch, <dialog>,
       # History, fetch, timers, real input. Every engine Playwright bundles:
@@ -152,7 +152,7 @@ jobs:
       # Safari that Playwright can drive.
       - name: Drive the examples in Chromium, Firefox and WebKit
         if: inputs.e2e == 'all' || (inputs.e2e == 'linux' && startsWith(matrix.os, 'ubuntu'))
-        run: ${{ steps.setup.outputs.prefix }} roc ./e2e.roc -- --opt=${{ matrix.opt }} --browser=all
+        run: ${{ steps.setup.outputs.prefix }} roc ./e2e.roc --opt=${{ matrix.opt }} --browser=all
 
       # Every directory example with a tests.roc doubles as a standalone
       # template, so its own scripts must work, not just its app.
@@ -195,4 +195,4 @@ jobs:
           github-token: ${{ github.token }}
 
       - name: Build and test with tiny buffers (${{ matrix.roc }})
-        run: ${{ steps.setup.outputs.prefix }} env SMALL_BUFFERS=1 roc ./tests.roc -- --opt=speed
+        run: ${{ steps.setup.outputs.prefix }} env SMALL_BUFFERS=1 roc ./tests.roc --opt=speed
