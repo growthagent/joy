@@ -41,14 +41,12 @@ index = {
 				[class("docs-links")],
 				[
 					a([href("./LATESTVERSION/")], [text("API docs "), span([], [text("for LATESTVERSION")])]),
-					a([href("./main/")], [text("API docs "), span([], [text("for the main branch")])]),
 				],
 			),
 			label([for_("filter"), class("eyebrow"), style([("margin", "0")])], [text("Find a topic")]),
 			input([class("filter"), id("filter"), type("search"), placeholder("Effects, routes, components..."), autocomplete("off")]),
 			div([class("toc")], parts.map(index_part)),
 			p([class("toc-empty"), hidden(Bool.True)], [text("No topic matches. Try another word.")]),
-			p([class("index-foot")], [text("Written for Joy as of autumn 2026. Joy is in early development, so check the examples in the Joy repository when something here does not compile.")]),
 		],
 	)
 }
