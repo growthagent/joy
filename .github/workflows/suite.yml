@@ -145,10 +145,11 @@ jobs:
         run: ${{ steps.setup.outputs.prefix }} roc ./tests.roc --opt=${{ matrix.opt }}
 
       # What ./joy does in a real project. It has no Windows host yet, and it
-      # does not depend on --opt, so one leg per roc and OS is enough. A fresh
-      # cache, for roc-lang/roc#12693 and #12701.
+      # does not depend on --opt, so one leg per roc is enough. A fresh cache,
+      # for roc-lang/roc#12693 and #12701. Not on macOS yet: ./joy dev does not
+      # always notice a saved file there, and dev_assets! then waits forever.
       - name: Test ./joy
-        if: ${{ !startsWith(matrix.os, 'windows') && matrix.opt == 'speed' }}
+        if: ${{ startsWith(matrix.os, 'ubuntu') && matrix.opt == 'speed' }}
         env:
           ROC_CACHE_DIR: ${{ runner.temp }}/roc-cli-tests
         run: ${{ steps.setup.outputs.prefix }} roc cli/tests.roc
