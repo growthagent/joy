@@ -22,30 +22,33 @@ Routes := [].{
 			Roc,
 			"shared/Route.roc, shortened",
 			\\Route := [].{
-			\\    Route : [
-			\\        ## `/`, or `/?q=austen` with a search.
-			\\        Catalog({ query : Str }),
-			\\        ## `/books/7`
-			\\        Book(I64),
-			\\        ## `/books/new`
-			\\        NewBook,
-			\\        ## `/api/books/7/loan`
-			\\        ApiLoan(I64),
-			\\    ]
+			\\   Route : [
+			\\       ## `/`, or `/?q=austen` with a search.
+			\\       Catalog({ query : Str }),
+			\\       ## `/books/7`
+			\\       Book(I64),
+			\\       ## `/books/new`
+			\\       NewBook,
+			\\       ## `/api/books/7/loan`
+			\\       ApiLoan(I64),
+			\\   ]
 			\\
-			\\    parse : Str -> Try(Route.Route, [NotFound])
+			\\   parse : Str -> Try(Route.Route, [NotFound])
 			\\
-			\\    to_path : Route.Route -> Str
-			\\    to_path = |route|
-			\\        match route {
-			\\            Catalog({ query }) => with_param("/", "q", query, "")
-			\\            Book(id) => "/books/\${id.to_str()}"
-			\\            NewBook => "/books/new"
-			\\            ApiLoan(id) => "/api/books/\${id.to_str()}/loan"
-			\\        }
+			\\   to_path : Route.Route -> Str
+			\\   to_path = |route|
+			\\       match route {
+			\\           Catalog({ query }) => with_param("/", "q", query, "")
+			\\           Book(id) => path(["books", id.to_str()])
+			\\           NewBook => "/books/new"
+			\\           ApiLoan(id) => path(["api", "books", id.to_str(), "loan"])
+			\\       }
 			\\}
 			\\
-			\\expect Route.parse(Route.to_path(Book(7))) == Ok(Book(7))
+			\\round_trips : Route.Route -> Bool
+			\\round_trips = |route| Route.parse(Route.to_path(route)) == Ok(route)
+			\\
+			\\expect round_trips(Book(7))
 		),
 		p(
 			[],

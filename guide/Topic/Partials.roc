@@ -18,18 +18,25 @@ Partials := [].{
 			Roc,
 			"shared/Partial/Menu.roc, from Shelf",
 			\\Menu := [].{
-			\\    ## Which entry is the current one.
-			\\    Section : [Catalog, Loans, NewBook, Nowhere]
+			\\   ## Which entry is the current one. `Nowhere` marks none, for pages that
+			\\   ## belong to no section, like a 404.
+			\\   Section : [Catalog, Loans, NewBook, Nowhere]
 			\\
-			\\    view : Section -> Html(msg)
-			\\    view = |current|
-			\\        header([class("top")], [
-			\\            nav([class("links")], [
-			\\                entry("Catalog", Catalog({ query: "" }), current == Catalog),
-			\\                entry("On loan", Loans, current == Loans),
-			\\                entry("Add a book", NewBook, current == NewBook),
-			\\            ]),
-			\\        ])
+			\\   view : Section -> Html(msg)
+			\\   view = |current|
+			\\       header(
+			\\           [class("top")],
+			\\           [
+			\\               nav(
+			\\                   [class("links")],
+			\\                   [
+			\\                       entry("Catalog", Catalog({ query: "" }), current == Catalog),
+			\\                       entry("On loan", Loans, current == Loans),
+			\\                       entry("Add a book", NewBook, current == NewBook),
+			\\                   ],
+			\\               ),
+			\\           ],
+			\\       )
 			\\}
 		),
 		p(
@@ -47,7 +54,7 @@ Partials := [].{
 				text("When a partial has buttons, let the caller pass the messages in. Do not write the page's message tags inside the partial."),
 			],
 		),
-		Doc.code(
+		Doc.sketch(
 			Roc,
 			"",
 			\\# Ties the partial to one page: it only works where Msg has Booking(Opened(_)).

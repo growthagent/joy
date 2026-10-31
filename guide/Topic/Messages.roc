@@ -16,7 +16,7 @@ Messages := [].{
 				text(" to decide what that means."),
 			],
 		),
-		Doc.code(
+		Doc.sketch(
 			Roc,
 			"",
 			\\# Commands: says what should happen, which is update's job.

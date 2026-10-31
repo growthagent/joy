@@ -25,6 +25,7 @@ Topics := [].{
 		Modules,
 		AddAPage,
 		JoyCli,
+		OptimizingAssets,
 		Reading,
 	]
 
@@ -57,6 +58,7 @@ Topics := [].{
 		Modules,
 		AddAPage,
 		JoyCli,
+		OptimizingAssets,
 		Reading,
 	]
 
@@ -86,6 +88,7 @@ Topics := [].{
 			Modules => { id: "modules", part: "Structuring for scale", title: "Organizing modules", keywords: "modules files life of a file headings flat structure type folders organization" }
 			AddAPage => { id: "add-a-page", part: "Reference", title: "Adding a page", keywords: "checklist add page new page steps route routing table bundle island joy new bundle server view" }
 			JoyCli => { id: "joy-cli", part: "Reference", title: "The ./joy command", keywords: "joy cli command build dev hot reload server new bundle use doctor versions release install dist public assets out-dir port host test ci no-input proxy hash cache json names" }
+			OptimizingAssets => { id: "optimizing-assets", part: "Reference", title: "Optimizing assets", keywords: "minify compress compile typescript ts sass scss tailwind esbuild images png jpg css js assets before watch" }
 			Reading => { id: "reading", part: "Reference", title: "Further reading", keywords: "links talks feldman evan elm roc joy examples resources" }
 		}
 

@@ -144,6 +144,15 @@ jobs:
       - name: Build and test
         run: ${{ steps.setup.outputs.prefix }} roc ./tests.roc --opt=${{ matrix.opt }}
 
+      # What ./joy does in a real project. It has no Windows host yet, and it
+      # does not depend on --opt, so one leg per roc and OS is enough. A fresh
+      # cache, for roc-lang/roc#12693 and #12701.
+      - name: Test ./joy
+        if: ${{ !startsWith(matrix.os, 'windows') && matrix.opt == 'speed' }}
+        env:
+          ROC_CACHE_DIR: ${{ runner.temp }}/roc-cli-tests
+        run: ${{ steps.setup.outputs.prefix }} roc cli/tests.roc
+
       # What only a real browser can prove: event dispatch, <dialog>,
       # History, fetch, timers, real input. Every engine Playwright bundles:
       # form controls and event order are where they differ (see

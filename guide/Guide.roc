@@ -21,6 +21,7 @@ import /Topic/Messages as TopicMessages
 import /Topic/Modules as TopicModules
 import /Topic/AddAPage as TopicAddAPage
 import /Topic/JoyCli as TopicJoyCli
+import /Topic/OptimizingAssets as TopicOptimizingAssets
 import /Topic/Reading as TopicReading
 import html.Html
 import /Doc
@@ -54,6 +55,7 @@ Guide := [].{
 			Modules => TopicModules.body
 			AddAPage => TopicAddAPage.body
 			JoyCli => TopicJoyCli.body
+			OptimizingAssets => TopicOptimizingAssets.body
 			Reading => TopicReading.body
 		}
 }

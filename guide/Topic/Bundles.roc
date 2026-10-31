@@ -287,7 +287,7 @@ Bundles := [].{
 			"client/catalog.roc",
 			\\app [Model, Msg, init, update, view, subscriptions] {
 			\\    pf: platform "https://github.com/niclas-ahden/joy/releases/download/VERSION/HASH.tar.zst",
-			\\    html: "https://github.com/niclas-ahden/joy-html/releases/download/0.17.0/AcmwFzyfbsf5RALWNdX6cXw1cuuDXt96YfcysNqgFqoG.tar.zst",
+			\\    html: "https://github.com/growthagent/joy-html/releases/download/0.18.0-rc1/6eTqakHk59tsBefdx2VPuYDVZxG8SoEtzE74e7MzyoBq.tar.zst",
 			\\    shared: "../shared/main.roc",
 			\\}
 			\\
@@ -327,14 +327,14 @@ Bundles := [].{
 				text("A piece that can be placed as an island offers one function, which puts its first markup inside a root that names its bundle and carries its model. The server page's view calls it where the island goes:"),
 			],
 		),
-		Doc.code(
+		Doc.sketch(
 			Roc,
 			"shared/ReviewForm.roc",
 			\\## The form on a server-rendered page: its markup in a root with its model.
 			\\island : Model -> Html(msg)
 			\\island = |form| Html.bundle({ id: Bundle.path(ReviewForm), flags: Json.to_str(form), view: ReviewForm.view(form) })
 		),
-		Doc.code(
+		Doc.sketch(
 			Roc,
 			"server/Page/Products/Show.roc",
 			\\page! = |ctx, product_id| {
@@ -401,7 +401,7 @@ Bundles := [].{
 				text(", from the bundle files it found:"),
 			],
 		),
-		Doc.code(
+		Doc.sketch(
 			Roc,
 			"generated/Bundle.roc, generated",
 			\\Bundle : [Catalog, CheckoutCart, ReviewForm, ...]

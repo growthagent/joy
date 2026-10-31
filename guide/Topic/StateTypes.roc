@@ -15,7 +15,7 @@ StateTypes := [].{
 			],
 		),
 		h2([], [text("Booleans that can contradict each other")]),
-		Doc.code(
+		Doc.sketch(
 			Roc,
 			"",
 			\\# Two flags and an error text that can contradict each other:
@@ -47,7 +47,7 @@ StateTypes := [].{
 				text(" for \"closed\" are states the type does not know about. Name them instead:"),
 			],
 		),
-		Doc.code(
+		Doc.sketch(
 			Roc,
 			"",
 			\\# A booking dialog with placeholders:

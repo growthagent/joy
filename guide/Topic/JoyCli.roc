@@ -1,5 +1,5 @@
-import html.Html exposing [code, div, h1, h2, li, p, strong, table, tbody, td, text, th, thead, tr, ul]
-import html.Attribute exposing [class]
+import html.Html exposing [a, code, div, h1, h2, li, p, strong, table, tbody, td, text, th, thead, tr, ul]
+import html.Attribute exposing [class, href]
 import /Doc
 
 ## The topic "The ./joy command".
@@ -292,6 +292,19 @@ JoyCli := [].{
 				text(" builds what ships instead, and the page reloads after each rebuild. Reach for it when a bug might live in the difference: a hot build records every message, and its wasm is larger."),
 			],
 		),
+		p(
+			[],
+			[
+				code([], [text("--watch COMMAND")]),
+				text(" runs a command in your shell alongside the builds until Ctrl-C, for a compiler that writes into "),
+				code([], [text("assets/")]),
+				text(", and "),
+				code([], [text("./joy build --before COMMAND")]),
+				text(" runs one first and stops if it fails. "),
+				a([href("#optimizing-assets")], [text("Optimizing assets")]),
+				text(" has the rest."),
+			],
+		),
 		h2([], [text("Ports")]),
 		div(
 			[class("table-wrap")],
@@ -323,9 +336,9 @@ JoyCli := [].{
 										td(
 											[],
 											[
-												code([], [text("JOY_DEV_SERVER_PORT")]),
+												code([], [text("JOY_EVENTS_PORT")]),
 												text(", "),
-												code([], [text("--dev-server-port")]),
+												code([], [text("--events-port")]),
 											],
 										),
 										td(
@@ -368,7 +381,7 @@ JoyCli := [].{
 						code(
 							[],
 							[
-								text("./joy build [--debug] [--opt=LEVEL] [--out-dir DIR] [--public-dir DIR] [--jobs N] [--no-server] [--server-opt=LEVEL] [--server-target=TARGET] [DIR|BUNDLE...] [-- ROC FLAGS]"),
+								text("./joy build [--debug] [--opt=LEVEL] [--before COMMAND] [--out-dir DIR] [--public-dir DIR] [--jobs N] [--no-server] [--server-opt=LEVEL] [--server-target=TARGET] [DIR|BUNDLE...] [-- ROC FLAGS]"),
 							],
 						),
 					],
@@ -767,7 +780,7 @@ JoyCli := [].{
 			],
 		),
 		Doc.code(
-			Sh,
+			Text,
 			"",
 			\\./joy 0.15.0 is running Joy 0.14.0, the release this app is on.
 		),

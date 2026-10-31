@@ -22,6 +22,7 @@ import pf.Monotonic
 import pf.OsStr
 import pf.Path
 import pf.Server
+import pf.Sleep
 import pf.Stderr
 import pf.Stdout
 import http.Request
@@ -89,6 +90,13 @@ tests = [
 	("build copies public/ and rewrites its HTML", build_public!),
 	("build hashes assets/", build_assets!),
 	("build names hashed files in stylesheets", build_stylesheet_urls!),
+	("build warns about paths that will 404", build_broken_paths!),
+	("build names a file it cannot read", build_unreadable!),
+	("the guide's ./joy commands and flags exist", guide_flags!),
+	("the guide's Sass commands build", guide_sass_build!),
+	("the guide's Sass command watches", guide_sass_watch!),
+	("the guide's esbuild commands build", guide_esbuild_build!),
+	("the guide's esbuild command watches", guide_esbuild_watch!),
 	("build refuses a path that two things would take", build_conflicts!),
 	("build guards --out-dir", build_out_dir_guards!),
 	("build fails on a broken bundle and leaves no wasm", build_broken!),
@@ -111,6 +119,9 @@ tests = [
 	("dev starts, restarts and keeps the project's server", dev_server!),
 	("dev with --no-server sends events only", dev_no_server!),
 	("dev stops everything on Ctrl-C", dev_ctrl_c!),
+	("dev runs --watch commands until it stops", dev_watch!),
+	("dev recovers when --watch writes an asset after the first build", dev_watch_first_start!),
+	("build runs --before commands, and stops when one fails", build_before!),
 	("dev is the front door with --proxy", dev_front_door!),
 	("dev answers 502 when a backend is down", dev_backend_down!),
 	("dev refuses a malformed --proxy", dev_bad_proxy!),
@@ -130,7 +141,7 @@ tests = [
 
 # Fixtures
 
-html_package = "https://github.com/niclas-ahden/joy-html/releases/download/0.17.1/AcmwFzyfbsf5RALWNdX6cXw1cuuDXt96YfcysNqgFqoG.tar.zst"
+html_package = "https://github.com/growthagent/joy-html/releases/download/0.18.0-rc1/6eTqakHk59tsBefdx2VPuYDVZxG8SoEtzE74e7MzyoBq.tar.zst"
 
 ## The platform of the fixture servers, the same release ./joy is built on.
 cli_platform = "https://github.com/growthagent/joy-cli-platform/releases/download/0.1.0-rc1/71QJT9cSt2W6XM4ovm4w6A2PAnq9uUpzn7jxT8PiTGqX.tar.zst"
@@ -437,6 +448,272 @@ build_assets! = |ctx| {
 	check(copied == "h1 { color: teal }\n", "the hashed copy differs")?
 	fonts = files_in!(ctx, "dist/client/fonts")
 	check(fonts.len() == 1 and (fonts.first() ?? "").starts_with("hind."), "a file without an extension was not hashed: ${Str.inspect(fonts)}")
+}
+
+build_broken_paths! : Ctx => Try({}, [Failed(Str)])
+build_broken_paths! = |ctx| {
+	bundle!(ctx, "client/app.roc", "app")?
+	write!(ctx, "assets/js/main.js", "import \"lit\"\n// import \"./commented.js\"\nimport \"./kept.js\"\nimport \"../runtime.js\"\n")?
+	write!(ctx, "assets/css/site.css", "@import \"./base.css\";\na { background: url(../kept.png) } b { background: url(/server/route.png) }\n")?
+	write!(ctx, "assets/css/base.css", "p {}\n")?
+	write!(ctx, "public/js/kept.js", "import \"./other.js\"\n")?
+	write!(ctx, "public/js/other.js", "export {}")?
+	write!(ctx, "public/kept.png", "png")?
+	quiet = joy_ok!(ctx, ["build"], 0)?
+	check(!quiet.contains("Warning"), "a build warned about paths that work:\n${quiet}")?
+
+	write!(ctx, "assets/js/main.js", "import{a}from\"./dep.js\";await import(`../lib/lazy.mjs`);import\"./typo.js\"")?
+	write!(ctx, "assets/js/dep.js", "export const a = 1")?
+	write!(ctx, "assets/lib/lazy.mjs", "import \"./gone.js\"")?
+	write!(ctx, "assets/css/site.css", "@import \"./nope.css\";\na { background: url(gone.png) }\n")?
+	write!(ctx, "public/js/kept.js", "import \"./dep.js\"\n")?
+	write!(ctx, "public/js/page.css", "a { background: url(dep.js) }\n")?
+	# Not UTF-8, which must not hide what the file imports.
+	out = joy_ok!(ctx, ["build", "--before", "printf 'const s = \"\\351\";\\nimport \"./dep.js\"\\n' > assets/js/latin.js"], 0)?
+	contains(out, "assets/js/main.js imports ./dep.js, which a build gives a hashed name")?
+	contains(out, "assets/js/main.js imports ../lib/lazy.mjs, which a build gives a hashed name")?
+	contains(out, "assets/js/main.js imports ./typo.js, which is in neither assets/ nor public/")?
+	contains(out, "assets/lib/lazy.mjs imports ./gone.js, which is in neither assets/ nor public/")?
+	contains(out, "assets/js/latin.js imports ./dep.js, which a build gives a hashed name")?
+	contains(out, "assets/css/site.css names ./nope.css, which is in neither assets/ nor public/")?
+	contains(out, "assets/css/site.css names gone.png, which is in neither assets/ nor public/")?
+	contains(out, "public/js/kept.js imports ./dep.js, which a build gives a hashed name")?
+	contains(out, "public/js/page.css names dep.js, which a build gives a hashed name")?
+	contains(out, "keep all of its modules in public/")?
+	check(files_in!(ctx, "dist/client/js").any(|name| name.starts_with("main.")), "the warning stopped the build")?
+
+	write!(ctx, "assets/js/main.js", "import \"./typo.js\"")?
+	write!(ctx, "assets/js/latin.js", "export {}")?
+	write!(ctx, "assets/lib/lazy.mjs", "export {}")?
+	write!(ctx, "assets/css/site.css", "a {}")?
+	write!(ctx, "public/js/kept.js", "export {}")?
+	write!(ctx, "public/js/page.css", "a {}")?
+	missing = joy_ok!(ctx, ["build"], 0)?
+	contains(missing, "assets/js/main.js imports ./typo.js")?
+	check(!missing.contains("keep all of its modules"), "bundling was advised for a file that does not exist:\n${missing}")
+}
+
+build_unreadable! : Ctx => Try({}, [Failed(Str)])
+build_unreadable! = |ctx| {
+	bundle!(ctx, "client/app.roc", "app")?
+	refused! = |path, want| {
+		chmod!(ctx, "000", path)?
+		ran = run_joy!(ctx, ["build"])?
+		chmod!(ctx, "755", path)?
+		check(ran.code == 1, "a build exited ${ran.code.to_str()} with ${path} unreadable:\n${ran.out}")?
+		contains(ran.out, want)?
+		check(!ran.out.contains("Program exited"), "a raw error reached the user:\n${ran.out}")
+	}
+	write!(ctx, "assets/locked.js", "export {}")?
+	refused!("assets/locked.js", "Could not read assets/locked.js: permission denied")?
+	write!(ctx, "assets/locked.css", "a {}")?
+	refused!("assets/locked.css", "Could not read assets/locked.css: permission denied")?
+	write!(ctx, "public/js/locked.js", "export {}")?
+	refused!("public/js/locked.js", "Could not copy public/js/locked.js to dist/client/js/locked.js: permission denied")?
+	write!(ctx, "public/page.html", "<p></p>")?
+	refused!("public/page.html", "Could not read public/page.html: permission denied")?
+	refused!("public/js", "Could not read public/js/: permission denied")
+}
+
+## The commands of the guide's Optimizing assets page that use `tool`, so these
+## tests run what it tells people to run.
+guide_commands! : Ctx, Str => Try(List(Str), [Failed(Str)])
+guide_commands! = |ctx, tool| {
+	if !has_tool!(tool) {
+		return Err(Failed("${tool} is not on the PATH. The nix dev shell has it, and CI installs it."))
+	}
+	page = Path.utf8("${ctx.joy_root}/guide/Topic/OptimizingAssets.roc").read_utf8!() ? |_| Failed("could not read the guide's Optimizing assets page")
+	Ok(page.split_on("\n").map(Str.trim).keep_if(|line| line.starts_with("\\\\$ ") and line.contains(tool)).map(|line| line.drop_prefix("\\\\$ ")))
+}
+
+chmod! : Ctx, Str, Str => Try({}, [Failed(Str)])
+chmod! = |ctx, mode, path| {
+	ran = Cmd.new(OsStr.from_str("chmod")).args([mode, path].map(OsStr.from_str)).cwd(Path.utf8(ctx.dir)).run!() ? |err| Failed("chmod: ${Str.inspect(err)}")
+	check(ran.status == Exited(0), "chmod ${mode} ${path} failed")
+}
+
+has_tool! : Str => Bool
+has_tool! = |tool|
+	match Cmd.new(OsStr.from_str(tool)).args([OsStr.from_str("--version")]).run!() {
+		Ok(output) => output.status == Exited(0)
+		Err(_) => False
+	}
+
+## The one command the page shows `--before` or `--watch` with.
+guide_flag_value! : Ctx, Str, Str => Try(Str, [Failed(Str)])
+guide_flag_value! = |ctx, tool, flag| {
+	lines = guide_commands!(ctx, tool)?.keep_if(|line| line.contains(flag))
+	match lines {
+		[line] =>
+			match line.split_first("${flag} \"") {
+				Ok({ after, .. }) => Ok(after.drop_suffix("\""))
+				Err(_) => Err(Failed("no quoted ${flag} in: ${line}"))
+			}
+
+		_ => Err(Failed("expected one ${flag} line for ${tool}, found ${Str.inspect(lines)}"))
+	}
+}
+
+## Nothing is still running the command `./joy dev` was given.
+stopped! : Str => Try({}, [Failed(Str)])
+stopped! = |command| {
+	left = Cmd.new(OsStr.from_str("pgrep")).args(["-f", command].map(OsStr.from_str)).run!() ? |err| Failed("pgrep: ${Str.inspect(err)}")
+	check(left.status == Exited(1), "${command} outlived ./joy dev:\n${Str.from_utf8_lossy(left.stdout_bytes)}")
+}
+
+## Wait for a file the project's watcher writes to say `text`.
+file_says! : Ctx, Str, Str => Try({}, [Failed(Str)])
+file_says! = |ctx, file, text| {
+	var $tries = 0
+	while $tries < 150 {
+		if (read!(ctx, file) ?? "").contains(text) {
+			return Ok({})
+		}
+		_ = Sleep.millis!(100)
+		$tries = $tries + 1
+	}
+	Err(Failed("${file} never said ${text}: ${read!(ctx, file) ?? "(no such file)"}"))
+}
+
+## The one file in `folder` of the build with a hashed name after `stem`.
+built_file! : Ctx, Str, Str => Try(Str, [Failed(Str)])
+built_file! = |ctx, folder, stem| {
+	match files_in!(ctx, folder).keep_if(|name| name.starts_with("${stem}.")) {
+		[name] => read!(ctx, "${folder}/${name}")
+		other => Err(Failed("expected one ${stem} in ${folder}, found ${Str.inspect(other)}"))
+	}
+}
+
+guide_flags! : Ctx => Try({}, [Failed(Str)])
+guide_flags! = |ctx| {
+	commands = ["dev", "build", "bundles", "init"]
+	helps = commands.map_try!(|command| joy_ok!(ctx, [command, "--help"], 0).map_ok(|help| (command, flags_in(help))))?
+	topics = Path.utf8("${ctx.joy_root}/guide/Topic").list!() ? |_| Failed("could not list the guide's topics")
+	var $checked = 0
+	for topic in topics {
+		source = topic.read_utf8!() ? |_| Failed("could not read ${Path.display(topic)}")
+		var $in_shell = False
+		for line in source.split_on("\n") {
+			# A code block's language comes first, on a line of its own.
+			trimmed = line.trim()
+			if ["Sh,", "Roc,", "Js,", "Html,", "Text,"].contains(trimmed) {
+				$in_shell = trimmed == "Sh,"
+			}
+			sample = $in_shell and trimmed.starts_with("\\\\")
+			for after in line.split_on("./joy ").drop_first(1) {
+				# A sample's quotes hold another tool's flags. Prose ends at its string's.
+				words = (if (sample) outside_quotes(after) else after.split_on("\"").first() ?? after).split_on(" ")
+				command = words.first() ?? ""
+				match helps.find_first(|(name, _)| name == command) {
+					Ok((_, help)) => {
+						$checked = $checked + 1
+						for word in words.drop_first(1) {
+							name = word.split_on("=").first() ?? word
+							if name.starts_with("--") and !help.contains(name) {
+								return Err(Failed("${Path.display(topic)} has ./joy ${command} ${name}, which --help does not list"))
+							}
+						}
+					}
+
+					# A sample names a command. Prose can say anything.
+					Err(_) if sample => return Err(Failed("${Path.display(topic)} has ./joy ${command}, which is no command: ${line.trim()}"))
+					Err(_) => {}
+				}
+			}
+		}
+	}
+	check($checked >= 9, "only ${$checked.to_str()} ./joy commands found in the guide")?
+
+	# The ./joy page also names flags in its text, each in a code span of its own.
+	every_flag = helps.map(|(_, flags)| flags).join()
+	page = Path.utf8("${ctx.joy_root}/guide/Topic/JoyCli.roc").read_utf8!() ? |_| Failed("could not read the guide's ./joy page")
+	named = page.split_on("text(\"--").drop_first(1).map(|after| "--${after.split_on("\"").first() ?? after}").map(|flag| (flag.split_on(" ").first() ?? flag).split_on("=").first() ?? flag)
+	check(!named.is_empty(), "the guide's ./joy page names no flags")?
+	unknown = named.drop_if(|flag| every_flag.contains(flag))
+	check(unknown.is_empty(), "the guide's ./joy page names flags --help does not list: ${Str.inspect(unknown)}")
+}
+
+## The flags a --help text lists, each whole, so `--prox` is not `--proxy`.
+flags_in : Str -> List(Str)
+flags_in = |help|
+	help
+		.replace_each("\n", " ")
+		.split_on(" ")
+		.map(|word| word.split_on("=").first() ?? word)
+		.keep_if(|word| word.starts_with("--"))
+
+## `text` without what its double quotes hold.
+outside_quotes : Str -> Str
+outside_quotes = |text| {
+	var $outside = True
+	var $kept = []
+	for part in text.split_on("\"") {
+		if $outside {
+			$kept = $kept.append(part)
+		}
+		$outside = !$outside
+	}
+	Str.join_with($kept, " ")
+}
+
+guide_sass_build! : Ctx => Try({}, [Failed(Str)])
+guide_sass_build! = |ctx| {
+	bundle!(ctx, "client/app.roc", "app")?
+	write!(ctx, "styles/site.scss", "$accent: teal;\nh1 { color: $accent; }\n")?
+	before = guide_flag_value!(ctx, "sass", "--before")?
+	_ = joy_ok!(ctx, ["build", "--before", before], 0)?
+	contains(read!(ctx, "assets/css/site.css")?, "color:teal")?
+	contains(built_file!(ctx, "dist/client/css", "site")?, "color:teal")
+}
+
+guide_sass_watch! : Ctx => Try({}, [Failed(Str)])
+guide_sass_watch! = |ctx| {
+	bundle!(ctx, "client/app.roc", "app")?
+	write!(ctx, "styles/site.scss", "h1 { color: teal; }\n")?
+	watch = guide_flag_value!(ctx, "sass", "--watch")?
+	dev = start_dev!(ctx, ["--watch", watch], [])?
+	dev1 = wait_for!(dev, "built app", 1)?
+	file_says!(ctx, "assets/css/site.css", "teal")?
+	write!(ctx, "styles/site.scss", "h1 { color: plum; }\n")?
+	file_says!(ctx, "assets/css/site.css", "plum")?
+	_ = stop_dev!(dev1)?
+	stopped!(watch)
+}
+
+guide_esbuild_build! : Ctx => Try({}, [Failed(Str)])
+guide_esbuild_build! = |ctx| {
+	bundle!(ctx, "client/app.roc", "app")?
+	write!(ctx, "scripts/app.ts", "const greet = (who: string): string => \"hello \" + who\nconsole.log(greet(\"joy\"))\n")?
+	before = guide_flag_value!(ctx, "esbuild", "--before")?
+	_ = joy_ok!(ctx, ["build", "--before", before], 0)?
+	script = built_file!(ctx, "dist/client", "app")?
+	contains(script, "hello")?
+	check(!script.contains(": string"), "esbuild left TypeScript's types in:\n${script}")?
+
+	# Minifying what a build wrote, which keeps each file's hashed name.
+	write!(ctx, "assets/site.css", "a {\n  color: red;\n}\n")?
+	_ = joy_ok!(ctx, ["build"], 0)?
+	minify = guide_commands!(ctx, "esbuild")?.keep_if(|line| line.starts_with("esbuild "))
+	check(minify.len() == 1, "expected one esbuild line of its own, found ${Str.inspect(minify)}")?
+	line = minify.first() ?? ""
+	ran = Cmd.new(OsStr.from_str("sh")).args(["-c", line].map(OsStr.from_str)).cwd(Path.utf8(ctx.dir)).stderr(MergeWithStdout).run!() ? |err| Failed("${line}: ${Str.inspect(err)}")
+	check(ran.status == Exited(0), "${line}:\n${Str.from_utf8_lossy(ran.stdout_bytes)}")?
+	css = built_file!(ctx, "dist/client", "site")?
+	check(css.trim() == "a{color:red}", "the guide's command did not minify the build: ${css}")
+}
+
+guide_esbuild_watch! : Ctx => Try({}, [Failed(Str)])
+guide_esbuild_watch! = |ctx| {
+	bundle!(ctx, "client/app.roc", "app")?
+	write!(ctx, "scripts/app.ts", "console.log(\"one\" as string)\n")?
+	watch = guide_flag_value!(ctx, "esbuild", "--watch")?
+	dev = start_dev!(ctx, ["--watch", watch], [])?
+	dev1 = wait_for!(dev, "built app", 1)?
+	file_says!(ctx, "assets/app.js", "one")?
+	write!(ctx, "scripts/app.ts", "console.log(\"two\" as string)\n")?
+	file_says!(ctx, "assets/app.js", "two")?
+	_ = stop_dev!(dev1)?
+	stopped!(watch)
 }
 
 build_stylesheet_urls! : Ctx => Try({}, [Failed(Str)])
@@ -787,7 +1064,7 @@ dev_serves_pages! = |ctx| {
 	loader = get!("http://localhost:${port}/joy.js")?
 	contains(body_of(loader), "data-joy-bundle")?
 	runtime = get!("http://localhost:${port}/runtime.js")?
-	contains(body_of(runtime), "./joy dev: reload the page when a build changes")?
+	contains(body_of(runtime), "const JOY_DEV_PORT = ")?
 	css = get!("http://localhost:${port}/css/site.css")?
 	check(body_of(css) == "body {}", "assets/ is not served as it is")?
 	spa = get!("http://localhost:${port}/books/7")?
@@ -939,7 +1216,7 @@ dev_server! = |ctx| {
 	events = expect_event!(listen!(dev_port)?, "hello", 1)?
 	write!(ctx, "server/main.roc", server_source(ctx, "version two"))?
 	dev2 = wait_for!(dev1, "app listening on", 2)?
-	events2 = expect_event!(events, "reload", 1)?
+	events2 = expect_event!(events, "server", 1)?
 	contains(events2.seen, "data: server")?
 	app_port2 = port_after(dev2.out.split_last("Started server").map_ok(|{ after, .. }| after) ?? dev2.out, "[server] app listening on")?
 	two = get!("http://localhost:${app_port2}/")?
@@ -1257,6 +1534,49 @@ generated_dev! = |ctx| {
 	dev3 = wait_for!(wait_for!(dev2, "built server", 2)?, "built app", 2)?
 	_ = stop_dev!(dev3)?
 	Ok({})
+}
+
+dev_watch! : Ctx => Try({}, [Failed(Str)])
+dev_watch! = |ctx| {
+	bundle!(ctx, "client/app.roc", "app")?
+	# A watcher that goes on in a child of its shell, which has to stop too.
+	dev = start_dev!(ctx, ["--watch", "echo started $$; sleep 987; echo never", "--watch", "printf 'one\\ntwo\\n'; exit 3"], [])?
+	dev1 = wait_for!(dev, "built app", 1)?
+	dev2 = wait_for!(dev1, "[echo] started", 1)?
+	dev3 = wait_for!(dev2, "[printf] two", 1)?
+	dev4 = wait_for!(dev3, "printf exited: Exited(3). ./joy does not start it again.", 1)?
+	check(dev4.out.split_on("printf exited").len() == 2, "a finished watcher was reported more than once")?
+	_ = stop_dev!(dev4)?
+	left = Cmd.new(OsStr.from_str("pgrep")).args(["-f", "sleep 987"].map(OsStr.from_str)).run!() ? |err| Failed("pgrep: ${Str.inspect(err)}")
+	check(left.status == Exited(1), "a --watch command outlived ./joy dev:\n${Str.from_utf8_lossy(left.stdout_bytes)}")
+}
+
+dev_watch_first_start! : Ctx => Try({}, [Failed(Str)])
+dev_watch_first_start! = |ctx| {
+	write!(ctx, "client/app.roc", asset_bundle_source(ctx, "client/app.roc", "made.css"))?
+	write!(ctx, "assets/other.css", "body {}")?
+	# Later than the first build, as a compiler that takes a moment would be.
+	dev = start_dev!(ctx, ["--watch", "sleep 3; printf 'p {}' > assets/made.css; sleep 987"], [])?
+	dev1 = wait_for!(dev, "app failed", 1)?
+	dev2 = wait_for!(dev1, "built app", 1)?
+	_ = stop_dev!(dev2)?
+	Ok({})
+}
+
+build_before! : Ctx => Try({}, [Failed(Str)])
+build_before! = |ctx| {
+	bundle!(ctx, "client/app.roc", "app")?
+	out = joy_ok!(ctx, ["build", "--before", "mkdir -p assets && printf 'p {}' > assets/one.css", "--before", "printf 'a {}' > assets/two.css"], 0)?
+	contains(out, "Running mkdir -p assets")?
+	names = files_in!(ctx, "dist/client")
+	check(names.any(|name| name.starts_with("one.") and name.ends_with(".css")), "the first command's file was not built: ${Str.inspect(names)}")?
+	check(names.any(|name| name.starts_with("two.") and name.ends_with(".css")), "the second command's file was not built: ${Str.inspect(names)}")?
+	failed = run_joy!(ctx, ["build", "--before", "exit 3", "--before", "printf 'x' > assets/after.css"])?
+	check(failed.code != 0, "a failed --before did not fail the build")?
+	contains(failed.out, "--before failed, so nothing was built: exit 3")?
+	check(!exists!(ctx, "assets/after.css"), "the command after a failed one ran")?
+	kept = files_in!(ctx, "dist/client")
+	check(kept.any(|name| name.starts_with("one.")), "a failed --before emptied the last build")
 }
 
 dev_behind_proxy! : Ctx => Try({}, [Failed(Str)])

@@ -35,7 +35,7 @@ SimplestApi := [].{
 								Doc.code(
 									Roc,
 									"",
-									\\subscribe_button : Html(msg)
+									\\subscribe_button : Html(Msg)
 									\\subscribe_button = a([class("button"), href(Route.to_path(Subscribe))], [text("Subscribe")])
 								),
 							],
@@ -103,7 +103,7 @@ SimplestApi := [].{
 										text("It has state of its own and several messages with real logic behind them, and you would otherwise repeat all of that on every page that uses it."),
 									],
 								),
-								Doc.code(
+								Doc.sketch(
 									Roc,
 									"",
 									\\ContactForm.Model, ContactForm.Msg, ContactForm.init, ContactForm.view   # shared

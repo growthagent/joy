@@ -15,7 +15,7 @@ NarrowTypes := [].{
 			],
 		),
 		h2([], [text("Take only what you need")]),
-		Doc.code(
+		Doc.sketch(
 			Roc,
 			"",
 			\\# Can read and change anything in the model.

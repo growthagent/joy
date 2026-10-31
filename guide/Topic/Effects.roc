@@ -18,7 +18,7 @@ Effects := [].{
 		),
 		Doc.code(
 			Roc,
-			"examples/http.roc, shortened",
+			"",
 			\\import pf.Effect
 			\\import pf.Http
 			\\

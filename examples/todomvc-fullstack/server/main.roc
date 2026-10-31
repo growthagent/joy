@@ -28,7 +28,7 @@
 app [Context, program] {
 	pf: platform "https://github.com/niclas-ahden/basic-webserver/releases/download/0.20.0/8gawVMwxgrwBefBfG9kAMVeJQ68b8kd1tTAAsX1xUtTe.tar.zst",
 	http: "https://github.com/roc-lang/http/releases/download/2.0.0/6ZUwqYhCS8PU9Mo6MF7oV82ET2o7KYb57CLKDq4cq4sS.tar.zst",
-	html: "https://github.com/niclas-ahden/joy-html/releases/download/0.17.1/AcmwFzyfbsf5RALWNdX6cXw1cuuDXt96YfcysNqgFqoG.tar.zst",
+	html: "https://github.com/growthagent/joy-html/releases/download/0.18.0-rc1/6eTqakHk59tsBefdx2VPuYDVZxG8SoEtzE74e7MzyoBq.tar.zst",
 	shared: "../shared/main.roc",
 }
 

@@ -66,13 +66,23 @@ Endpoints := [].{
 			Roc,
 			"client/Page/Books/Show.roc",
 			\\UserSubmittedBorrow =>
-			\\    ({ ..model, saving: Saving }, [ApiClient.send(PageBooksShow.borrow(model.book.id), borrower, |answer| ServerAnsweredBorrow(answer))])
+			\\   if model.saving == Saving {
+			\\       (model, [])
+			\\   } else {
+			\\       match Book.check_borrower({ email: model.email }) {
+			\\           Err(problem) => ({ ..model, saving: Failed(problem) }, [])
+			\\           Ok(borrower) => (
+			\\               { ..model, saving: Saving },
+			\\               [ApiClient.send(PageBooksShow.borrow(model.book.id), borrower, |answer| ServerAnsweredBorrow(answer))],
+			\\           )
+			\\       }
+			\\   }
 			\\
 			\\ServerAnsweredBorrow(Ok(book)) => stored(book)
-			\\ServerAnsweredBorrow(Err(AlreadyOnLoan)) => (failed(model, "This book is already on loan."), [])
+			\\ServerAnsweredBorrow(Err(AlreadyOnLoan)) => (failed({ ..model, book: { ..model.book, availability: OnLoan } }, "This book is already on loan."), [])
 			\\ServerAnsweredBorrow(Err(BadEmail(why))) => (failed(model, why), [])
-			\\ServerAnsweredBorrow(Err(BookMissing)) => (failed(model, "This book is no longer in the catalog."), [])
-			\\ServerAnsweredBorrow(Err(Server(failure))) => (failed(model, Api.failure_text(failure)), [])
+			\\ServerAnsweredBorrow(Err(BookMissing)) => (failed(model, missing), [])
+			\\ServerAnsweredBorrow(Err(Server(failure))) => server_failed(model, "Borrowing", failure)
 		),
 		p(
 			[],

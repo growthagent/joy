@@ -51,7 +51,7 @@ Modules := [].{
 				),
 			],
 		),
-		Doc.code(
+		Doc.sketch(
 			Roc,
 			"",
 			\\# Model

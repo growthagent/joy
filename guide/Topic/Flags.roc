@@ -51,7 +51,7 @@ Flags := [].{
 		),
 		Doc.code(
 			Roc,
-			"examples/flags.roc, shortened",
+			"",
 			\\Model : [
 			\\    Human({ name : Str, karma : I32 }),
 			\\    FailedToParseFlags(Str),

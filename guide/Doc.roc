@@ -19,7 +19,8 @@ Doc := [].{
 	api_docs = "./LATESTVERSION/"
 
 	## A code block. `file` labels it, and an empty one falls back to the
-	## language's name.
+	## language's name. Roc in one must appear in code the suite compiles (see
+	## tests/check_guide.mjs).
 	code : Lang, Str, Str -> Html([])
 	code = |lang, file, src| {
 		label = if (file == "") short_name(lang) else file
@@ -31,6 +32,11 @@ Doc := [].{
 			],
 		)
 	}
+
+	## A code block whose Roc cannot compile, like two rival definitions shown side
+	## by side, so tests/check_guide.mjs leaves it alone.
+	sketch : Lang, Str, Str -> Html([])
+	sketch = |lang, file, src| Doc.code(lang, file, src)
 }
 
 short_name : Doc.Lang -> Str

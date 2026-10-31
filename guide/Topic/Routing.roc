@@ -21,17 +21,20 @@ Routing := [].{
 			"server/main.roc, from Shelf",
 			\\route! : Server.Request, Context, Route.Route => Try(Response, _)
 			\\route! = |req, ctx, route|
-			\\    match route {
-			\\        Catalog({ query }) => Routing.get!(req, || ServerBooksIndex.page!(ctx, query))
-			\\        Book(book_id) => Routing.get!(req, || ServerBooksShow.page!(ctx, book_id))
-			\\        NewBook => Routing.get!(req, || ServerBooksNew.page!())
+			\\   match route {
+			\\       Catalog({ query }) => Routing.get!(req, || ServerBooksIndex.page!(ctx, query))
+			\\       Book(book_id) => Routing.get!(req, || ServerBooksShow.page!(ctx, book_id))
+			\\       NewBook => Routing.get!(req, || ServerBooksNew.page!())
 			\\
-			\\        ApiLoan(book_id) =>
-			\\            Routing.api!(req, [
-			\\                ApiServer.on(PageBooksShow.borrow(book_id), |borrower| ServerBooksShow.borrow!(ctx, book_id, borrower)),
-			\\                ApiServer.on(PageBooksShow.give_back(book_id), |{}| ServerBooksShow.give_back!(ctx, book_id)),
-			\\            ])
-			\\    }
+			\\       ApiLoan(book_id) =>
+			\\           Routing.api!(
+			\\               req,
+			\\               [
+			\\                   ApiServer.on(PageBooksShow.borrow(book_id), |borrower| ServerBooksShow.borrow!(ctx, book_id, borrower)),
+			\\                   ApiServer.on(PageBooksShow.give_back(book_id), |{}| ServerBooksShow.give_back!(ctx, book_id)),
+			\\               ],
+			\\           )
+			\\   }
 		),
 		p([], [text("Each row answers in one of three ways:")]),
 		ul(
@@ -70,7 +73,7 @@ Routing := [].{
 		),
 		h2([], [text("Who may use a route")]),
 		p([], [text("In an app with sign-in, give each row an access level as a tag around its handler:")]),
-		Doc.code(
+		Doc.sketch(
 			Roc,
 			"",
 			\\Loans => get!(req, ctx, AnyAdmin(|user| ServerLoansIndex.page!(ctx, user)))

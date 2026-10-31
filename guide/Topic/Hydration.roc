@@ -115,7 +115,7 @@ Hydration := [].{
 				text(" receives a model instead of building one:"),
 			],
 		),
-		Doc.code(
+		Doc.sketch(
 			Roc,
 			"server/Page/Books/Show.roc",
 			\\page! : Ctx.Ctx, I64 => Try(Response, _)
@@ -183,7 +183,7 @@ Hydration := [].{
 				text(" refuses an encoder that can fail. A type from a library is fine when the library gives it codecs, which in Roc is two lines inside the type that ask the compiler to derive them:"),
 			],
 		),
-		Doc.code(
+		Doc.sketch(
 			Roc,
 			"",
 			\\Carousel(slide) :: { id : Str, items : List(slide), position : U64, ... }.{

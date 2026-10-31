@@ -37,6 +37,10 @@ from a checkout, those links lead nowhere.
 - `Page.roc` renders the index and the topics into `page.html`, which
   `build.roc` writes to `www/index.html`.
 - `www/` holds the stylesheet beside the page the build writes.
+- `samples/` holds real apps with the guide's Roc samples in them, which
+  `tests.roc` compiles. `tests/check_guide.mjs` requires each sample to appear
+  in one of those apps or in an example, its lines in order. A sample that cannot
+  compile, like two rival definitions side by side, says so with `Doc.sketch`.
 
 A new topic is a tag in `Topics.Topic`, its row in `Topics.info`, a module
 in `Topic/` and its row in `Guide.body`. The compiler points out the rows
