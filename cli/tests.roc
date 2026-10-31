@@ -57,7 +57,9 @@ main! = |args| {
 	var $failed = []
 	for (name, test!) in chosen {
 		started = Monotonic.now!()
-		outcome = Env.with_temp_dir!(|dir| test!({ dir: Path.display(dir), joy, joy_root, roc_cache: "${joy_root}/cli/target/roc-cache" }))
+		# The real path: macOS keeps its temp dirs behind a symlink, and platform_from
+		# counts the folders it climbs.
+		outcome = Env.with_temp_dir!(|dir| test!({ dir: Path.display(dir.canonicalize!() ?? dir), joy, joy_root, roc_cache: "${joy_root}/cli/target/roc-cache" }))
 		took = Monotonic.since(Monotonic.now!(), started).to_millis()
 		match outcome {
 			Ok({}) => Stdout.line!("ok    ${name} (${took.to_str()} ms)")?
