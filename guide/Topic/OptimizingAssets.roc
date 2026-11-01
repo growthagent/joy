@@ -46,7 +46,7 @@ OptimizingAssets := [].{
 		p(
 			[],
 			[
-				text("Run a minifier over the build's output. The names stay the same, so "),
+				text("Joy's own loader and runtime come minified, so this is for the JavaScript, CSS and SVG you wrote. Run a minifier over the build's output. The names stay the same, so "),
 				code([], [text("assets.json")]),
 				text(" and the names your pages use stay right, and your own files are not touched. "),
 				code([], [text("./joy dev")]),
