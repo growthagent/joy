@@ -11,7 +11,7 @@
 ## host must be built, and joy-html must be reachable or in roc's cache.
 app [main!] {
 	http: "https://github.com/roc-lang/http/releases/download/1.0.0/6ZUwqYhCS8PU9Mo6MF7oV82ET2o7KYb57CLKDq4cq4sS.tar.zst",
-	pf: platform "https://github.com/growthagent/joy-cli-platform/releases/download/0.1.0-rc1/71QJT9cSt2W6XM4ovm4w6A2PAnq9uUpzn7jxT8PiTGqX.tar.zst",
+	pf: platform "https://github.com/growthagent/joy-cli-platform/releases/download/0.1.0-rc2/GRtP7M2SpyV7QhXgN5kHKsP7qw5hpghZ1ymQKB8z45ca.tar.zst",
 }
 
 import pf.Cmd
@@ -126,7 +126,14 @@ tests = [
 	("build runs --before commands, and stops when one fails", build_before!),
 	("dev is the front door with --proxy", dev_front_door!),
 	("dev answers 502 when a backend is down", dev_backend_down!),
+	("dev answers for a server that is not up, and says when it is", dev_server_not_up!),
+	("dev says when the server exits", dev_server_exits!),
 	("dev refuses a malformed --proxy", dev_bad_proxy!),
+	("dev serves folders with --mount and --mount-download", dev_mounts!),
+	("build runs everything at once unless --jobs limits it", build_jobs!),
+	("dev refuses a malformed --mount", dev_bad_mount!),
+	("dev sends its events on a port of their own", dev_events_port!),
+	("dev answers files while slow pages it forwarded are abandoned", dev_abandoned_pages!),
 	("dev plays the proxy for a server that sits behind one", dev_behind_proxy!),
 	("dev says when a server does not serve its files", dev_server_without_files!),
 	("generated/ is written only when a header names it", generated_only_when_named!),
@@ -146,7 +153,7 @@ tests = [
 html_package = "https://github.com/growthagent/joy-html/releases/download/0.18.0-rc1/6eTqakHk59tsBefdx2VPuYDVZxG8SoEtzE74e7MzyoBq.tar.zst"
 
 ## The platform of the fixture servers, the same release ./joy is built on.
-cli_platform = "https://github.com/growthagent/joy-cli-platform/releases/download/0.1.0-rc1/71QJT9cSt2W6XM4ovm4w6A2PAnq9uUpzn7jxT8PiTGqX.tar.zst"
+cli_platform = "https://github.com/growthagent/joy-cli-platform/releases/download/0.1.0-rc2/GRtP7M2SpyV7QhXgN5kHKsP7qw5hpghZ1ymQKB8z45ca.tar.zst"
 
 ## A small Joy app that renders `label`, importing `imports`, with `extra`
 ## at the end of the file.
@@ -364,6 +371,17 @@ bundles_json! = |ctx| {
 }
 
 # ./joy build
+
+build_jobs! : Ctx => Try({}, [Failed(Str)])
+build_jobs! = |ctx| {
+	bundle!(ctx, "client/catalog.roc", "catalog")?
+	bundle!(ctx, "client/cart.roc", "cart")?
+	all = joy_ok!(ctx, ["build"], 0)?
+	contains(all, "Building 2 at --opt=size")?
+	check(!all.contains("at a time"), "a build without --jobs has a limit: ${all}")?
+	limited = joy_ok!(ctx, ["build", "--jobs", "1"], 0)?
+	contains(limited, ", 1 at a time")
+}
 
 build_basic! : Ctx => Try({}, [Failed(Str)])
 build_basic! = |ctx| {
@@ -1057,7 +1075,7 @@ dev_serves_pages! = |ctx| {
 	write!(ctx, "assets/css/site.css", "body {}")?
 	dev = start_dev!(ctx, ["--port", "0"], [])?
 	dev1 = wait_for!(dev, "built catalog", 1)?
-	port = port_after(dev1.out, "Serving the pages on http://localhost")?
+	port = port_after(dev1.out, "Starting on http://localhost")?
 	index = get!("http://localhost:${port}/")?
 	contains(body_of(index), "data-joy-bundle=\"catalog\"")?
 	check(header_of(index, "cache-control") == "no-cache", "pages are not served with Cache-Control: no-cache")?
@@ -1087,7 +1105,7 @@ dev_rebuilds! = |ctx| {
 	bundle!(ctx, "client/cart.roc", "cart")?
 	dev = start_dev!(ctx, ["--port", "0"], [])?
 	dev1 = wait_for!(wait_for!(dev, "built catalog", 1)?, "built cart", 1)?
-	port = port_after(dev1.out, "Serving the pages on http://localhost")?
+	port = port_after(dev1.out, "Starting on http://localhost")?
 	events = expect_event!(listen!(port)?, "hello", 1)?
 	bundle!(ctx, "client/catalog.roc", "catalog, edited")?
 	dev2 = wait_for!(dev1, "built catalog", 2)?
@@ -1149,7 +1167,7 @@ dev_assets! = |ctx| {
 	write!(ctx, "assets/css/site.css", "body {}")?
 	dev = start_dev!(ctx, ["--port", "0"], [])?
 	dev1 = wait_for!(dev, "built app", 1)?
-	port = port_after(dev1.out, "Serving the pages on http://localhost")?
+	port = port_after(dev1.out, "Starting on http://localhost")?
 	events = expect_event!(listen!(port)?, "hello", 1)?
 	write!(ctx, "assets/css/site.css", "body { margin: 0 }")?
 	events2 = expect_event!(events, "asset", 1)?
@@ -1188,14 +1206,14 @@ dev_next_port! : Ctx => Try({}, [Failed(Str)])
 dev_next_port! = |ctx| {
 	bundle!(ctx, "client/app.roc", "app")?
 	first = start_dev!(ctx, ["--port", "0"], [])?
-	first1 = wait_for!(first, "Serving the pages", 1)?
-	taken = port_after(first1.out, "Serving the pages on http://localhost")?
+	first1 = wait_for!(first, "Starting on", 1)?
+	taken = port_after(first1.out, "Starting on http://localhost")?
 	# Another project, so the two do not build into one .joy/.
 	other = { ..ctx, dir: "${ctx.dir}/other" }
 	bundle!(other, "client/app.roc", "other")?
 	second = start_dev!(other, ["--port", taken], [])?
-	second1 = wait_for!(second, "Serving the pages", 1)?
-	next = port_after(second1.out, "Serving the pages on http://localhost")?
+	second1 = wait_for!(second, "Starting on", 1)?
+	next = port_after(second1.out, "Starting on http://localhost")?
 	check(next != taken, "the second ./joy dev claims the taken port ${taken}")?
 	_ = stop_dev!(second1)?
 	_ = stop_dev!(first1)?
@@ -1247,7 +1265,7 @@ dev_no_server! = |ctx| {
 	dev = start_dev!(ctx, ["--no-server"], [])?
 	dev1 = wait_for!(dev, "built app", 1)?
 	lacks(dev1.out, "Started server")?
-	lacks(dev1.out, "Serving the pages")?
+	lacks(dev1.out, "Starting on")?
 	port = port_after(dev1.out, "The dev server sends events on http://localhost")?
 	events = expect_event!(listen!(port)?, "hello", 1)?
 	_ = events
@@ -1307,7 +1325,7 @@ dev_front_door! = |ctx| {
 		[],
 	)?
 	dev1 = wait_for!(dev, "built app", 1)?
-	port = port_after(dev1.out, "Serving the pages on http://localhost")?
+	port = port_after(dev1.out, "Starting on http://localhost")?
 	page = get!("http://localhost:${port}/books/7?sort=new")?
 	contains(body_of(page), "pages GET /books/7?sort=new host=localhost:${port}")?
 	posted = Http.send!(Request.from_method(POST).with_uri("http://localhost:${port}/api/books").with_body(Str.to_utf8("title=Dune")), {}) ? |err| Failed("POST: ${Str.inspect(err)}")
@@ -1336,10 +1354,84 @@ dev_backend_down! = |ctx| {
 	Server.stop!(gone)
 	dev = start_dev!(ctx, ["--port", "0", "--proxy", "/=http://127.0.0.1:${closed}"], [])?
 	dev1 = wait_for!(dev, "built app", 1)?
-	port = port_after(dev1.out, "Serving the pages on http://localhost")?
+	port = port_after(dev1.out, "Starting on http://localhost")?
 	answer = get!("http://localhost:${port}/anything")?
 	check(Response.status(answer) == 502, "a request for a backend that is down got ${Response.status(answer).to_str()}")?
-	contains(body_of(answer), "./joy dev could not reach http://127.0.0.1:${closed}")?
+	contains(body_of(answer), "./joy dev could not reach http://127.0.0.1:${closed}: client error (Connect). Is it running?")?
+	_ = stop_dev!(dev1)?
+	Ok({})
+}
+
+## GET the way a browser opens a page.
+open_page! : Str => Try(Response, [Failed(Str)])
+open_page! = |url|
+	Http.send!(Request.from_method(GET).with_uri(url).with_headers([{ name: "Accept", value: "text/html,*/*" }]), {})
+		.map_err(|err| Failed("GET ${url}: ${Str.inspect(err)}"))
+
+## Wait for the page at `url` to say `text`.
+page_says! : Str, Str => Try(Response, [Failed(Str)])
+page_says! = |url, text| {
+	var $tries = 0
+	while $tries < 150 {
+		page = open_page!(url)?
+		if body_of(page).contains(text) {
+			return Ok(page)
+		}
+		_ = Sleep.millis!(100)
+		$tries = $tries + 1
+	}
+	Err(Failed("${url} never said ${text}: ${body_of(open_page!(url)?)}"))
+}
+
+dev_server_not_up! : Ctx => Try({}, [Failed(Str)])
+dev_server_not_up! = |ctx| {
+	bundle!(ctx, "client/app.roc", "app")?
+	write!(ctx, "server/main.roc", "${server_source(ctx, "version one")}\nbroken = ")?
+	dev = start_dev!(ctx, ["--port", "0"], [("JOY_SERVE_FILES", "1")])?
+	dev1 = wait_for!(dev, "Building 2,", 1)?
+	port = port_after(dev1.out, "Starting on http://localhost")?
+	url = "http://localhost:${port}/books"
+
+	# While it builds a page says how far the builds are, and asks again.
+	building = page_says!(url, " of 2 done")?
+	check(Response.status(building) == 503, "a page during the builds got ${Response.status(building).to_str()}")?
+	check(header_of(building, "content-type").contains("text/html"), "a page during the builds is not HTML")?
+	contains(body_of(building), "http-equiv=\"refresh\"")?
+	contains(body_of(building), "could not reach")?
+	lacks(body_of(building), "[99")?
+
+	# A server that does not build says so.
+	broken = page_says!(url, "The server did not build")?
+	check(Response.status(broken) == 503, "a page without a server got ${Response.status(broken).to_str()}")?
+	dev2 = wait_for!(dev1, "built app", 1)?
+	lacks(dev2.out, "Ready on")?
+
+	# A request that is not a page gets the same words, without the document.
+	plain = get!(url)?
+	check(Response.status(plain) == 503, "a request without a server got ${Response.status(plain).to_str()}")?
+	contains(body_of(plain), "The server did not build")?
+	contains(body_of(plain), "could not reach")?
+	lacks(body_of(plain), "<html")?
+
+	# Once it builds and answers, the pages are ready, and only then.
+	write!(ctx, "server/main.roc", server_source(ctx, "version one"))?
+	dev3 = wait_for!(dev2, "Ready on http://localhost:${port}/", 1)?
+	page = open_page!(url)?
+	check(Response.status(page) == 200 and body_of(page) == "version one", "a ready page got ${Response.status(page).to_str()}: ${body_of(page)}")?
+	_ = stop_dev!(dev3)?
+	Ok({})
+}
+
+dev_server_exits! : Ctx => Try({}, [Failed(Str)])
+dev_server_exits! = |ctx| {
+	bundle!(ctx, "client/app.roc", "app")?
+	write!(ctx, "server/main.roc", "app [main!] { pf: platform \"${cli_platform}\" }\n\nimport pf.OsStr\n\nmain! : List(OsStr) => Try({}, _)\nmain! = |_args| Ok({})\n")?
+	dev = start_dev!(ctx, ["--port", "0"], [("JOY_SERVE_FILES", "1")])?
+	dev1 = wait_for!(dev, "server exited", 1)?
+	port = port_after(dev1.out, "Starting on http://localhost")?
+	lacks(dev1.out, "Ready on")?
+	gone = page_says!("http://localhost:${port}/", "The server exited. ./joy starts it again after the next build.")?
+	check(Response.status(gone) == 503, "a page after the server exited got ${Response.status(gone).to_str()}")?
 	_ = stop_dev!(dev1)?
 	Ok({})
 }
@@ -1349,6 +1441,126 @@ dev_bad_proxy! = |ctx| {
 	bundle!(ctx, "client/app.roc", "app")?
 	out = joy_ok!(ctx, ["dev", "--proxy", "api=localhost:3000"], 1)?
 	contains(out, "--proxy takes PATH=URL")
+}
+
+dev_mounts! : Ctx => Try({}, [Failed(Str)])
+dev_mounts! = |ctx| {
+	bundle!(ctx, "client/app.roc", "app")?
+	write!(ctx, "media/film.mp4", "film bytes")?
+	write!(ctx, "secret.txt", "not served")?
+	pages = echo_backend!("pages")?
+	dev = start_dev!(
+		ctx,
+		["--port", "0", "--proxy", "/=http://127.0.0.1:${pages.port().to_str()}", "--mount", "/videos=media", "--mount", "/later=not/there/yet"],
+		[("JOY_MOUNT", "/env=media"), ("JOY_MOUNT_DOWNLOAD", "/download/videos=media")],
+	)?
+	dev1 = wait_for!(dev, "built app", 1)?
+	contains(dev1.out, "the files under /videos from media")?
+	port = port_after(dev1.out, "Starting on http://localhost")?
+	base = "http://localhost:${port}"
+
+	film = get!("${base}/videos/film.mp4")?
+	check(Response.status(film) == 200 and body_of(film) == "film bytes", "a mount did not serve its file: ${body_of(film)}")?
+	check(header_of(film, "content-disposition") == "", "--mount answered with a download")?
+	from_env = get!("${base}/env/film.mp4")?
+	check(body_of(from_env) == "film bytes", "JOY_MOUNT did not serve its file: ${body_of(from_env)}")?
+
+	# A video player asks for parts of the file, to seek.
+	part = Http.send!(Request.from_method(GET).with_uri("${base}/videos/film.mp4").with_headers([{ name: "Range", value: "bytes=5-9" }]), {}).map_err(|err| Failed("the range request: ${Str.inspect(err)}"))?
+	check(Response.status(part) == 206 and body_of(part) == "bytes", "a mount did not answer a range request: ${Response.status(part).to_str()} ${body_of(part)}")?
+
+	download = get!("${base}/download/videos/film.mp4")?
+	check(body_of(download) == "film bytes", "JOY_MOUNT_DOWNLOAD did not serve its file: ${body_of(download)}")?
+	check(header_of(download, "content-disposition") == "attachment; filename*=UTF-8''film.mp4", "a download is named ${header_of(download, "content-disposition")}")?
+
+	# A mount answers for its whole path, and only for what is below it.
+	missing = get!("${base}/videos/none.mp4")?
+	check(Response.status(missing) == 404, "a missing file got ${Response.status(missing).to_str()}: ${body_of(missing)}")?
+	for escape in ["${base}/videos/..%2Fsecret.txt", "${base}/videos/%2e%2e/secret.txt"] {
+		escaped = get!(escape)?
+		check(Response.status(escaped) == 404 and body_of(escaped) != "not served", "${escape} left the folder: ${body_of(escaped)}")?
+	}
+	beside = get!("${base}/videosx/film.mp4")?
+	contains(body_of(beside), "pages GET /videosx/film.mp4")?
+
+	# A folder that was missing is created, and serves what arrives in it.
+	write!(ctx, "not/there/yet/new.txt", "arrived")?
+	later = get!("${base}/later/new.txt")?
+	check(body_of(later) == "arrived", "a created folder did not serve its file: ${body_of(later)}")?
+
+	_ = stop_dev!(dev1)?
+	Server.stop!(pages)
+	Ok({})
+}
+
+## Clicking through slow pages leaves requests the browser has given up on, which
+## still hold their handlers until the backend answers. More of them than the dev
+## server has handlers, and files still have to get past them at once.
+dev_abandoned_pages! : Ctx => Try({}, [Failed(Str)])
+dev_abandoned_pages! = |ctx| {
+	bundle!(ctx, "client/app.roc", "app")?
+	write!(ctx, "media/a.txt", "a file")?
+	write!(ctx, "public/robots.txt", "User-agent: *")?
+	slow =
+		Server.start!(
+			{ port: 0, handlers: 64 },
+			|_request| {
+				_ = Sleep.millis!(3_000)
+				Ok(Server.respond(Response.from_status(200)))
+			},
+		)
+			.map_err(|err| Failed("the backend did not start: ${Str.inspect(err)}"))?
+	dev = start_dev!(ctx, ["--port", "0", "--proxy", "/slow=http://127.0.0.1:${slow.port().to_str()}", "--mount", "/files=media"], [])?
+	dev1 = wait_for!(dev, "built app", 1)?
+	port = port_after(dev1.out, "Starting on http://localhost")?
+	abandon = "i=0; while [ $i -lt 40 ]; do i=$((i + 1)); curl -s -o /dev/null -m 0.2 http://localhost:${port}/slow/$i & done; wait"
+	_ = Cmd.new(OsStr.from_str("sh")).args(["-c", abandon].map(OsStr.from_str)).run!() ? |err| Failed("abandoning the pages: ${Str.inspect(err)}")
+	started = Monotonic.now!()
+	file = get!("http://localhost:${port}/files/a.txt")?
+	public = get!("http://localhost:${port}/robots.txt")?
+	wasm = get!("http://localhost:${port}/app/app.wasm")?
+	took = Monotonic.since(Monotonic.now!(), started).to_millis()
+	check(body_of(file) == "a file", "the mount's file did not arrive: ${body_of(file)}")?
+	check(body_of(public) == "User-agent: *", "public/'s file did not arrive: ${body_of(public)}")?
+	check(header_of(wasm, "content-type") == "application/wasm", "the dev build did not arrive")?
+	check(took < 1_500, "files waited ${took.to_str()} ms behind pages the browser gave up on")?
+	_ = stop_dev!(dev1)?
+	Server.stop!(slow)
+	Ok({})
+}
+
+## A browser opens 6 connections to a port, and every open page holds one for its
+## events, so the events keep off the port of the pages.
+dev_events_port! : Ctx => Try({}, [Failed(Str)])
+dev_events_port! = |ctx| {
+	bundle!(ctx, "client/app.roc", "app")?
+	dev = start_dev!(ctx, ["--port", "0"], [])?
+	dev1 = wait_for!(dev, "built app", 1)?
+	port = port_after(dev1.out, "Starting on http://localhost")?
+	runtime = read!(ctx, ".joy/dev/client/runtime.js")?
+	events_port =
+		match runtime.split_first("const JOY_DEV_PORT = ") {
+			Ok({ after, .. }) => (after.split_on(";").first() ?? "").trim()
+			Err(_) => return Err(Failed("the runtime names no events port"))
+		}
+	check(events_port != port, "pages and events share the port ${port}")?
+	check(read!(ctx, ".joy/events-port")?.trim() == events_port, "the events port is not remembered")?
+	_ = expect_event!(listen!(events_port)?, "hello", 1)?
+	wasm = get!("http://localhost:${events_port}/app/app.wasm")?
+	check(Response.status(wasm) == 404, "the events port serves files: ${Response.status(wasm).to_str()}")?
+	page_wasm = get!("http://localhost:${port}/app/app.wasm")?
+	check(Response.status(page_wasm) == 200, "the port of the pages lost its files: ${Response.status(page_wasm).to_str()}")?
+	_ = stop_dev!(dev1)?
+	Ok({})
+}
+
+dev_bad_mount! : Ctx => Try({}, [Failed(Str)])
+dev_bad_mount! = |ctx| {
+	bundle!(ctx, "client/app.roc", "app")?
+	out = joy_ok!(ctx, ["dev", "--mount", "videos=media"], 1)?
+	contains(out, "--mount takes PATH=DIR")?
+	download = joy_ok!(ctx, ["dev", "--mount-download", "/videos"], 1)?
+	contains(download, "--mount-download takes PATH=DIR")
 }
 
 # The generated/ package
@@ -1600,7 +1812,7 @@ dev_behind_proxy! = |ctx| {
 	dev1 = wait_for!(dev, "app listening on", 1)?
 	server_port = port_after(dev1.out, "app listening on")?
 	contains(dev1.out, "the files under /static/ from the builds, and everything else from the server on ${server_port}")?
-	port = port_after(dev1.out, "Serving the pages on http://localhost")?
+	port = port_after(dev1.out, "Starting on http://localhost")?
 	page = get!("http://localhost:${port}/books")?
 	check(body_of(page) == "from the server", "a page did not come from the project's server: ${body_of(page)}")?
 	wasm = get!("http://localhost:${port}/static/app/app.wasm")?
@@ -1626,7 +1838,8 @@ dev_server_without_files! = |ctx| {
 	warned = wait_for!(dev, "answers 404 for /joy.js", 1)?
 	contains(warned.out, "The server on ${port} answers 404 for /joy.js, so its pages load without their bundles.")?
 	contains(warned.out, "set JOY_SERVE_FILES=1")?
-	_ = stop_dev!(warned)?
+	ready = wait_for!(warned, "Ready on http://localhost:${port}/", 1)?
+	_ = stop_dev!(ready)?
 	Ok({})
 }
 

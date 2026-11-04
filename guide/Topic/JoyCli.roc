@@ -58,6 +58,18 @@ JoyCli := [].{
 		p(
 			[],
 			[
+				text("It says "),
+				code([], [text("Starting on")]),
+				text(" as soon as it has its port, and "),
+				code([], [text("Ready on")]),
+				text(" once the first builds are done and the server answers. With "),
+				code([], [text("--serve-files")]),
+				text(" a page opened before that says how far the builds are, or why the server is not up, and opens by itself when it is."),
+			],
+		),
+		p(
+			[],
+			[
 				text("Its builds go to "),
 				code([], [text(".joy/dev/")]),
 				text(", never to "),
@@ -288,6 +300,29 @@ JoyCli := [].{
 		p(
 			[],
 			[
+				text("An app that keeps uploads on disk, with a file server in front of them in production, serves that folder with "),
+				code([], [text("--mount")]),
+				text(":"),
+			],
+		),
+		Doc.code(
+			Sh,
+			"",
+			\\$ ./joy dev --mount /videos=uploads/videos --mount-download /download/videos=uploads/videos
+		),
+		p(
+			[],
+			[
+				text("Both can be given as often as needed, and answer range requests, so a video can seek. "),
+				code([], [text("--mount-download")]),
+				text(" answers each file as a download. A missing file is a 404, and a missing folder is created. These files are not part of "),
+				code([], [text("./joy build")]),
+				text("."),
+			],
+		),
+		p(
+			[],
+			[
 				code([], [text("--no-hot")]),
 				text(" builds what ships instead, and the page reloads after each rebuild. Reach for it when a bug might live in the difference: a hot build records every message, and its wasm is larger."),
 			],
@@ -344,7 +379,7 @@ JoyCli := [].{
 										td(
 											[],
 											[
-												text("The dev server's port when your own server serves the pages. By default the system picks a free one from the range it keeps for that, so it never takes 8000 or a port your servers are likely to use, and "),
+												text("Where the dev server sends its events, always a port other than the pages', since a browser opens only 6 connections to a port and every open page holds one for its events. By default the system picks a free one from the range it keeps for that, so it never takes 8000 or a port your servers are likely to use, and "),
 												code([], [text("./joy")]),
 												text(" asks for the same one next time, so open pages reconnect after a restart. Set it when your server runs on its own and has to know it."),
 											],
@@ -641,7 +676,7 @@ JoyCli := [].{
 						text(" writes the whole runtime, readable and with every feature, and asks roc for debug information. It is for chasing a bug."),
 					],
 				),
-				li([], [code([], [text("--jobs")]), text(" builds that many bundles at a time, 4 by default.")]),
+				li([], [code([], [text("--jobs")]), text(" limits how many builds run at once. Without it they all start at once.")]),
 				li(
 					[],
 					[
