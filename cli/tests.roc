@@ -106,8 +106,7 @@ tests = [
 	("build --debug writes the whole runtime", build_debug!),
 	("build refuses bundles on different releases", build_mixed_releases!),
 	("build builds the server, and --no-server skips it", build_server!),
-	("the server and the bundles build with roc caches of their own", build_caches!),
-	("a build that swaps in generated/ has roc caches of its own", build_caches_replaced!),
+	("the servers and the bundles build with roc caches of their own", build_caches!),
 	("build passes flags after -- to roc", build_roc_flags!),
 	("build reports bad options, and help shows them all", build_bad_options!),
 	("dev serves the pages of a project without a server", dev_serves_pages!),
@@ -870,38 +869,20 @@ build_server! = |ctx| {
 	contains(failed, "server failed:")
 }
 
-## WORKAROUND: the server and the bundles build with roc caches of their own,
-## see Compile.cache_root! and roc-lang/roc#12693 and #12701.
+## WORKAROUND: the servers and the bundles build with roc caches of their own,
+## see Compile.cache! and https://github.com/roc-lang/roc/issues/12853.
 build_caches! : Ctx => Try({}, [Failed(Str)])
 build_caches! = |ctx| {
 	bundle!(ctx, "client/app.roc", "app")?
 	write!(ctx, "server/main.roc", server_source(ctx, "built"))?
 	_ = joy_with!(ctx, ["build", "--server-opt", "dev"], 0, [("ROC_CACHE_DIR", "${ctx.dir}/given")])?
-	check(exists!(ctx, "given/joy/plain/servers/server"), "the server did not build in a cache of its own below ROC_CACHE_DIR")?
-	check(exists!(ctx, "given/joy/plain/bundles"), "the bundles did not build in their cache below ROC_CACHE_DIR")?
+	check(exists!(ctx, "given/joy/servers"), "the server did not build in its cache below ROC_CACHE_DIR")?
+	check(exists!(ctx, "given/joy/bundles"), "the bundles did not build in their cache below ROC_CACHE_DIR")?
 	given = Path.utf8("${ctx.dir}/given").list!() ? |_| Failed("ROC_CACHE_DIR was not written")
 	check(given.map(Path.display) == ["${ctx.dir}/given/joy"], "a build wrote into ROC_CACHE_DIR itself: ${Str.inspect(given.map(Path.display))}")?
 	_ = joy_with!(ctx, ["build", "--server-opt", "dev"], 0, [("ROC_CACHE_DIR", "")])?
-	check(exists!(ctx, ".joy/roc-cache/plain/servers/server"), "without ROC_CACHE_DIR the server did not build in .joy/roc-cache")?
-	check(exists!(ctx, ".joy/roc-cache/plain/bundles"), "without ROC_CACHE_DIR the bundles did not build in .joy/roc-cache")
-}
-
-## WORKAROUND: a build that swaps in its copy of generated/ is another
-## program to roc than one that does not, so it gets caches of its own, see
-## Compile.cache_root! and roc-lang/roc#12693 and #12701.
-build_caches_replaced! : Ctx => Try({}, [Failed(Str)])
-build_caches_replaced! = |ctx| {
-	bundle!(ctx, "client/app.roc", "app")?
-	write!(ctx, "assets/css/site.css", "body {}")?
-	write!(ctx, "server/main.roc", names_server_source(ctx, False))?
-	_ = joy_with!(ctx, ["build", "--server-opt", "dev"], 0, [("ROC_CACHE_DIR", "${ctx.dir}/given")])?
-	roots = Path.utf8("${ctx.dir}/given/joy").list!() ? |_| Failed("ROC_CACHE_DIR was not written")
-	swapped = roots.map(Path.display).drop_if(|root| root.ends_with("/plain"))
-	match swapped {
-		[root] => check(Path.utf8("${root}/servers/server").exists!() ?? False, "the server did not build in the caches of its flags")?
-		_ => return Err(Failed("the server that swaps in generated/ did not get caches of its own: ${Str.inspect(roots.map(Path.display))}"))
-	}
-	check(!exists!(ctx, "given/joy/plain/servers/server"), "the server built in the caches of a build without flags")
+	check(exists!(ctx, ".joy/roc-cache/servers"), "without ROC_CACHE_DIR the server did not build in .joy/roc-cache")?
+	check(exists!(ctx, ".joy/roc-cache/bundles"), "without ROC_CACHE_DIR the bundles did not build in .joy/roc-cache")
 }
 
 build_roc_flags! : Ctx => Try({}, [Failed(Str)])
@@ -968,7 +949,7 @@ wait_for! = |dev, part, count| {
 		if Monotonic.since(Monotonic.now!(), deadline).to_millis() > 120_000 {
 			return Err(Failed("./joy dev never printed ${Str.inspect(part)} ${count.to_str()} times:\n${$out}"))
 		}
-		match read_child!(dev.child, Duration.millis(200)) {
+		match dev.child.read!(Duration.millis(200)) {
 			Ok(Stdout(bytes)) | Ok(Stderr(bytes)) => {
 				$out = Str.concat($out, Str.from_utf8_lossy(bytes))
 			}
@@ -979,11 +960,6 @@ wait_for! = |dev, part, count| {
 	Ok({ ..dev, out: $out })
 }
 
-## WORKAROUND: roc-lang/roc#12692. A dev build frees a Child whose method a
-## `match` with an early return called, which kills the child. Call
-## `child.read!(timeout)` directly when fixed.
-read_child! = |child, timeout| child.read!(timeout)
-
 ## Ctrl-C, and the output up to the end.
 stop_dev! : Dev => Try(Str, [Failed(Str)])
 stop_dev! = |dev| {
@@ -992,7 +968,7 @@ stop_dev! = |dev| {
 	var $out = dev.out
 	var $reading = True
 	while $reading {
-		match read_child!(dev.child, Duration.seconds(10)) {
+		match dev.child.read!(Duration.seconds(10)) {
 			Ok(Stdout(bytes)) | Ok(Stderr(bytes)) => {
 				$out = Str.concat($out, Str.from_utf8_lossy(bytes))
 			}

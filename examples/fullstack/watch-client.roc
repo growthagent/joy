@@ -11,8 +11,6 @@ app [main!] {
 import Script exposing [run!]
 
 main! = |_args| {
-	# WORKAROUND: roc-lang/roc#12693 and #12701. A shared roc cache can crash
-	# this compile. Drop `--no-cache` when fixed.
-	run!("roc", ["--no-cache", "./build.roc"])?
+	run!("roc", ["./build.roc"])?
 	run!("roc", ["build", "--target=wasm32", "--watch", "--output=client/www/app.wasm", "client/main.roc"])
 }

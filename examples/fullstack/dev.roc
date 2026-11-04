@@ -14,9 +14,7 @@ import pf.OsStr
 import Script exposing [run!]
 
 main! = |_args| {
-	# WORKAROUND: roc-lang/roc#12693 and #12701. A shared roc cache can crash
-	# this compile. Drop `--no-cache` when fixed.
-	run!("roc", ["--no-cache", "./build.roc"])?
+	run!("roc", ["./build.roc"])?
 
 	# Leashed, so the watcher dies with this script. The handle is held until
 	# the server stops, because releasing it kills the child.

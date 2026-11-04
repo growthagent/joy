@@ -44,9 +44,7 @@ main! = |_args| {
 		fail!("playwright not found, run inside the nix devShell")?
 	}
 
-	# WORKAROUND: roc-lang/roc#12693 and #12701. A shared roc cache can crash
-	# this compile. Drop `--no-cache` when fixed.
-	run!("roc", ["--no-cache", "./build.roc"])?
+	run!("roc", ["./build.roc"])?
 
 	base_port = U64.from_str(Env.var_str!("E2E_PORT") ?? "8917") ? |_| InvalidE2ePort
 
