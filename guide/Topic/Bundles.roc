@@ -450,7 +450,13 @@ Bundles := [].{
 			[
 				text("What remains between islands goes through the document, as it already does inside one app: "),
 				code([], [text("DOM.show_modal(\"#id\")")]),
-				text(" opens a dialog whoever owns it, and a keyboard subscription hears a key whichever island asked. Two islands listening for Escape are fine as long as each checks its own state first. If two islands ever had to share a value, the mechanism would be a document event, and the better answer is nearly always to make them one island."),
+				text(" looks in the island's own view first and then on the rest of the page, so copies of an island each open their own dialog and a dialog anywhere on the page still opens. A keyboard subscription hears a key whichever island asked. Two islands listening for Escape are fine as long as each checks its own state first. If two islands ever had to share a value, the mechanism would be a document event, and the better answer is nearly always to make them one island."),
+			],
+		),
+		p(
+			[],
+			[
+				text("An island cannot go inside another. Everything in a root belongs to its app, so the loader does not mount a root inside a root and says so in the console. A part inside an island is written in that island's own app."),
 			],
 		),
 		p(
